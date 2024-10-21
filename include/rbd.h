@@ -21,7 +21,12 @@ namespace rbd
     // Converting json graph file to igraph_t 
     igraph_t json_to_igraph(std::string file_path);
 
+    std::vector <int> read_minimal_cut_set(std::string file_path, int src, int dst);
 
-    int find_path(std::string file_path, int src, int dst ,std::vector <int> &avail_nodes);
+    int find_path_DFS(igraph_t graph, int src, int dst ,std::vector <int> &available_nodes, std::vector <int> minimnl_cut_set);
+
+    int find_path_Dijkstra(igraph_t graph, int src, int dst ,std::vector <int> &available_nodes, std::vector <int> minimnl_cut_set);
+
+    int find_path_Bellman_Ford(igraph_t graph, int src, int dst ,std::vector <int> &available_nodes, std::vector <int> minimnl_cut_set);
 }
 
