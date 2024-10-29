@@ -1,0 +1,12 @@
+[
+{
+  "directory": "/home/chenyaxuan123/CYRBD/build",
+  "command": "/usr/bin/g++ -DIGRAPH_STATIC -DJSON_DIAGNOSTICS=0 -DJSON_USE_IMPLICIT_CONVERSIONS=1 -I/home/chenyaxuan123/CYRBD/include -I/home/chenyaxuan123/CYRBD/build/_deps/json-src/single_include -isystem /usr/local/include/igraph -g -std=gnu++2a -o CMakeFiles/rbd.dir/src/rbd.cpp.o -c /home/chenyaxuan123/CYRBD/src/rbd.cpp",
+  "file": "/home/chenyaxuan123/CYRBD/src/rbd.cpp"
+},
+{
+  "directory": "/home/chenyaxuan123/CYRBD/build",
+  "command": "/usr/bin/g++ -DIGRAPH_STATIC -DJSON_DIAGNOSTICS=0 -DJSON_USE_IMPLICIT_CONVERSIONS=1 -I/home/chenyaxuan123/CYRBD/include -I/home/chenyaxuan123/CYRBD/build/_deps/json-src/single_include -isystem /usr/local/include/igraph -g -std=gnu++2a -o CMakeFiles/rbd.dir/src/utiliy.cpp.o -c /home/chenyaxuan123/CYRBD/src/utiliy.cpp",
+  "file": "/home/chenyaxuan123/CYRBD/src/utiliy.cpp"
+}
+]

@@ -129,19 +129,6 @@ rbd/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/rbd.dir/build.make CMakeFiles/rbd.dir/build
 .PHONY : rbd/fast
 
-#=============================================================================
-# Target rules for targets named run
-
-# Build rule for target.
-run: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 run
-.PHONY : run
-
-# fast build rule for target.
-run/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/run.dir/build.make CMakeFiles/run.dir/build
-.PHONY : run/fast
-
 src/rbd.o: src/rbd.cpp.o
 .PHONY : src/rbd.o
 
@@ -166,6 +153,30 @@ src/rbd.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/rbd.dir/build.make CMakeFiles/rbd.dir/src/rbd.cpp.s
 .PHONY : src/rbd.cpp.s
 
+src/utiliy.o: src/utiliy.cpp.o
+.PHONY : src/utiliy.o
+
+# target to build an object file
+src/utiliy.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/rbd.dir/build.make CMakeFiles/rbd.dir/src/utiliy.cpp.o
+.PHONY : src/utiliy.cpp.o
+
+src/utiliy.i: src/utiliy.cpp.i
+.PHONY : src/utiliy.i
+
+# target to preprocess a source file
+src/utiliy.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/rbd.dir/build.make CMakeFiles/rbd.dir/src/utiliy.cpp.i
+.PHONY : src/utiliy.cpp.i
+
+src/utiliy.s: src/utiliy.cpp.s
+.PHONY : src/utiliy.s
+
+# target to generate assembly for a file
+src/utiliy.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/rbd.dir/build.make CMakeFiles/rbd.dir/src/utiliy.cpp.s
+.PHONY : src/utiliy.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -174,11 +185,13 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... run"
 	@echo "... rbd"
 	@echo "... src/rbd.o"
 	@echo "... src/rbd.i"
 	@echo "... src/rbd.s"
+	@echo "... src/utiliy.o"
+	@echo "... src/utiliy.i"
+	@echo "... src/utiliy.s"
 .PHONY : help
 
 

@@ -21,12 +21,6 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(json)
 
-add_executable(${EXCUTABLE_NAME} src/rbd.cpp)
+add_executable(${EXCUTABLE_NAME} src/rbd.cpp src/utiliy.cpp)
 
 target_link_libraries(${EXCUTABLE_NAME} igraph::igraph nlohmann_json::nlohmann_json)
-
-add_custom_target(run
-    COMMAND ./${EXECUTABLE_NAME}
-    DEPENDS ${EXECUTABLE_NAME}
-    WORKING_DIRECTORY ${CMAKE_PROJECT_DIR}
-)

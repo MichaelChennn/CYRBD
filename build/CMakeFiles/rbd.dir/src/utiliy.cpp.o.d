@@ -1,6 +1,6 @@
-CMakeFiles/rbd.dir/src/rbd.cpp.o: /home/chenyaxuan123/CYRBD/src/rbd.cpp \
- /usr/include/stdc-predef.h /home/chenyaxuan123/CYRBD/include/rbd.h \
- /usr/include/c++/9/iostream \
+CMakeFiles/rbd.dir/src/utiliy.cpp.o: \
+ /home/chenyaxuan123/CYRBD/src/utiliy.cpp /usr/include/stdc-predef.h \
+ /home/chenyaxuan123/CYRBD/include/utility.h /usr/include/c++/9/iostream \
  /usr/include/x86_64-linux-gnu/c++/9/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/9/bits/os_defines.h \
  /usr/include/features.h /usr/include/x86_64-linux-gnu/sys/cdefs.h \
@@ -145,45 +145,16 @@ CMakeFiles/rbd.dir/src/rbd.cpp.o: /home/chenyaxuan123/CYRBD/src/rbd.cpp \
  /usr/include/c++/9/bits/codecvt.h \
  /usr/include/x86_64-linux-gnu/c++/9/bits/basic_file.h \
  /usr/include/x86_64-linux-gnu/c++/9/bits/c++io.h \
- /usr/include/c++/9/bits/fstream.tcc \
- /home/chenyaxuan123/CYRBD/build/_deps/json-src/single_include/nlohmann/json.hpp \
- /usr/include/c++/9/algorithm /usr/include/c++/9/utility \
- /usr/include/c++/9/bits/stl_relops.h \
- /usr/include/c++/9/pstl/glue_algorithm_defs.h \
- /usr/include/c++/9/functional /usr/include/c++/9/tuple \
- /usr/include/c++/9/array /usr/include/c++/9/bits/uses_allocator.h \
- /usr/include/c++/9/bits/invoke.h /usr/include/c++/9/bits/refwrap.h \
- /usr/include/c++/9/bits/std_function.h /usr/include/c++/9/unordered_map \
- /usr/include/c++/9/ext/aligned_buffer.h \
- /usr/include/c++/9/bits/hashtable.h \
- /usr/include/c++/9/bits/hashtable_policy.h \
- /usr/include/c++/9/bits/node_handle.h /usr/include/c++/9/optional \
- /usr/include/c++/9/bits/enable_special_members.h \
- /usr/include/c++/9/bits/unordered_map.h \
- /usr/include/c++/9/bits/erase_if.h /usr/include/c++/9/vector \
- /usr/include/c++/9/bits/stl_uninitialized.h \
- /usr/include/c++/9/bits/stl_vector.h \
- /usr/include/c++/9/bits/stl_bvector.h /usr/include/c++/9/bits/vector.tcc \
- /usr/include/c++/9/pstl/execution_defs.h /usr/include/c++/9/cstddef \
- /usr/include/c++/9/iterator /usr/include/c++/9/bits/stream_iterator.h \
- /usr/include/c++/9/memory /usr/include/c++/9/bits/stl_raw_storage_iter.h \
- /usr/include/c++/9/ext/concurrence.h \
- /usr/include/c++/9/bits/unique_ptr.h \
- /usr/include/c++/9/bits/shared_ptr.h \
- /usr/include/c++/9/bits/shared_ptr_base.h \
- /usr/include/c++/9/bits/allocated_ptr.h \
- /usr/include/c++/9/bits/shared_ptr_atomic.h \
- /usr/include/c++/9/bits/atomic_base.h \
- /usr/include/c++/9/bits/atomic_lockfree_defines.h \
- /usr/include/c++/9/backward/auto_ptr.h /usr/include/c++/9/bit \
- /usr/include/c++/9/pstl/glue_memory_defs.h /usr/include/c++/9/numeric \
- /usr/include/c++/9/bits/stl_numeric.h \
- /usr/include/c++/9/pstl/glue_numeric_defs.h \
- /usr/include/c++/9/forward_list /usr/include/c++/9/bits/forward_list.h \
- /usr/include/c++/9/bits/forward_list.tcc /usr/include/c++/9/map \
- /usr/include/c++/9/bits/stl_tree.h /usr/include/c++/9/bits/stl_map.h \
- /usr/include/c++/9/bits/stl_multimap.h /usr/include/c++/9/valarray \
- /usr/include/c++/9/cmath /usr/include/math.h \
+ /usr/include/c++/9/bits/fstream.tcc /usr/local/include/igraph/igraph.h \
+ /usr/local/include/igraph/igraph_version.h \
+ /usr/local/include/igraph/igraph_decls.h \
+ /usr/local/include/igraph/igraph_export.h \
+ /usr/local/include/igraph/igraph_memory.h /usr/include/c++/9/stdlib.h \
+ /usr/local/include/igraph/igraph_error.h \
+ /usr/local/include/igraph/igraph_config.h \
+ /usr/local/include/igraph/igraph_random.h \
+ /usr/local/include/igraph/igraph_types.h /usr/include/inttypes.h \
+ /usr/include/c++/9/math.h /usr/include/c++/9/cmath /usr/include/math.h \
  /usr/include/x86_64-linux-gnu/bits/math-vector.h \
  /usr/include/x86_64-linux-gnu/bits/libm-simd-decl-stubs.h \
  /usr/include/x86_64-linux-gnu/bits/flt-eval-method.h \
@@ -205,38 +176,6 @@ CMakeFiles/rbd.dir/src/rbd.cpp.o: /home/chenyaxuan123/CYRBD/src/rbd.cpp \
  /usr/include/c++/9/tr1/poly_hermite.tcc \
  /usr/include/c++/9/tr1/poly_laguerre.tcc \
  /usr/include/c++/9/tr1/riemann_zeta.tcc \
- /usr/include/c++/9/bits/valarray_array.h \
- /usr/include/c++/9/bits/valarray_array.tcc \
- /usr/include/c++/9/bits/valarray_before.h \
- /usr/include/c++/9/bits/slice_array.h \
- /usr/include/c++/9/bits/valarray_after.h \
- /usr/include/c++/9/bits/gslice.h /usr/include/c++/9/bits/gslice_array.h \
- /usr/include/c++/9/bits/mask_array.h \
- /usr/include/c++/9/bits/indirect_array.h /usr/include/c++/9/cassert \
- /usr/include/assert.h /usr/include/c++/9/filesystem \
- /usr/include/c++/9/bits/fs_fwd.h /usr/include/c++/9/chrono \
- /usr/include/c++/9/ratio /usr/include/c++/9/ctime \
- /usr/include/c++/9/bits/parse_numbers.h \
- /usr/include/c++/9/bits/fs_path.h /usr/include/c++/9/locale \
- /usr/include/c++/9/bits/locale_facets_nonio.h \
- /usr/include/x86_64-linux-gnu/c++/9/bits/time_members.h \
- /usr/include/x86_64-linux-gnu/c++/9/bits/messages_members.h \
- /usr/include/libintl.h /usr/include/c++/9/bits/locale_facets_nonio.tcc \
- /usr/include/c++/9/bits/locale_conv.h /usr/include/c++/9/iomanip \
- /usr/include/c++/9/bits/quoted_string.h /usr/include/c++/9/sstream \
- /usr/include/c++/9/bits/sstream.tcc /usr/include/c++/9/codecvt \
- /usr/include/c++/9/bits/fs_dir.h /usr/include/c++/9/bits/fs_ops.h \
- /usr/include/c++/9/cstring /usr/include/string.h /usr/include/strings.h \
- /usr/local/include/igraph/igraph.h \
- /usr/local/include/igraph/igraph_version.h \
- /usr/local/include/igraph/igraph_decls.h \
- /usr/local/include/igraph/igraph_export.h \
- /usr/local/include/igraph/igraph_memory.h /usr/include/c++/9/stdlib.h \
- /usr/local/include/igraph/igraph_error.h \
- /usr/local/include/igraph/igraph_config.h \
- /usr/local/include/igraph/igraph_random.h \
- /usr/local/include/igraph/igraph_types.h /usr/include/inttypes.h \
- /usr/include/c++/9/math.h \
  /usr/lib/gcc/x86_64-linux-gnu/9/include/stdbool.h \
  /usr/local/include/igraph/igraph_vector.h \
  /usr/local/include/igraph/igraph_complex.h \
@@ -315,8 +254,4 @@ CMakeFiles/rbd.dir/src/rbd.cpp.o: /home/chenyaxuan123/CYRBD/src/rbd.cpp \
  /usr/local/include/igraph/igraph_eulerian.h \
  /usr/local/include/igraph/igraph_cycles.h \
  /usr/local/include/igraph/igraph_reachability.h \
- /usr/local/include/igraph/igraph_bitset_list.h \
- /usr/include/c++/9/unordered_set /usr/include/c++/9/bits/unordered_set.h \
- /usr/include/c++/9/set /usr/include/c++/9/bits/stl_set.h \
- /usr/include/c++/9/bits/stl_multiset.h \
- /home/chenyaxuan123/CYRBD/include/utility.h
+ /usr/local/include/igraph/igraph_bitset_list.h
