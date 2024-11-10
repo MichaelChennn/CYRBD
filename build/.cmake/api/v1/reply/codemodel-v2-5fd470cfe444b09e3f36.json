@@ -19,7 +19,8 @@
 					"source" : ".",
 					"targetIndexes" : 
 					[
-						0
+						0,
+						1
 					]
 				},
 				{
@@ -49,7 +50,8 @@
 					"name" : "RBD",
 					"targetIndexes" : 
 					[
-						0
+						0,
+						1
 					]
 				},
 				{
@@ -66,8 +68,15 @@
 				{
 					"directoryIndex" : 0,
 					"id" : "rbd::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-rbd-Debug-b5883a3a89a0054077ed.json",
+					"jsonFile" : "target-rbd-Debug-ded9391549d0972dd54e.json",
 					"name" : "rbd",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "rbd_bool::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-rbd_bool-Debug-a7c9a54259273c52e239.json",
+					"name" : "rbd_bool",
 					"projectIndex" : 0
 				}
 			]

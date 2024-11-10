@@ -4,7 +4,7 @@ project(RBD)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
-set(EXCUTABLE_NAME rbd)
+# set(EXCUTABLE_NAME rbd)
 
 #find igraph library
 find_package(igraph REQUIRED)
@@ -21,6 +21,8 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(json)
 
-add_executable(${EXCUTABLE_NAME} src/rbd.cpp src/utiliy.cpp)
+add_executable(rbd src/rbd.cpp src/utiliy.cpp)
+add_executable(rbd_bool src/rbd_bool.cpp)
 
-target_link_libraries(${EXCUTABLE_NAME} igraph::igraph nlohmann_json::nlohmann_json)
+target_link_libraries(rbd igraph::igraph nlohmann_json::nlohmann_json)
+target_link_libraries(rbd_bool igraph::igraph nlohmann_json::nlohmann_json)
