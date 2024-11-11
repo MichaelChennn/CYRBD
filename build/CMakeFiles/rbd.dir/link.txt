@@ -1,1 +1,1 @@
-/usr/bin/g++ -g CMakeFiles/rbd.dir/src/rbd.cpp.o CMakeFiles/rbd.dir/src/utiliy.cpp.o -o rbd  /usr/local/lib/libigraph.a -lm /usr/lib/gcc/x86_64-linux-gnu/9/libgomp.so /usr/lib/x86_64-linux-gnu/libpthread.so 
+/usr/bin/g++ -g CMakeFiles/rbd.dir/src/rbd.cpp.o CMakeFiles/rbd.dir/src/rbd_utility.cpp.o -o rbd  /usr/local/lib/libigraph.a -lm /usr/lib/gcc/x86_64-linux-gnu/9/libgomp.so /usr/lib/x86_64-linux-gnu/libpthread.so 

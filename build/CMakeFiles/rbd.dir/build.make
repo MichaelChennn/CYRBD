@@ -83,30 +83,30 @@ CMakeFiles/rbd.dir/src/rbd.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/rbd.dir/src/rbd.cpp.s"
 	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/chenyaxuan123/CYRBD/src/rbd.cpp -o CMakeFiles/rbd.dir/src/rbd.cpp.s
 
-CMakeFiles/rbd.dir/src/utiliy.cpp.o: CMakeFiles/rbd.dir/flags.make
-CMakeFiles/rbd.dir/src/utiliy.cpp.o: /home/chenyaxuan123/CYRBD/src/utiliy.cpp
-CMakeFiles/rbd.dir/src/utiliy.cpp.o: CMakeFiles/rbd.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/chenyaxuan123/CYRBD/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/rbd.dir/src/utiliy.cpp.o"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/rbd.dir/src/utiliy.cpp.o -MF CMakeFiles/rbd.dir/src/utiliy.cpp.o.d -o CMakeFiles/rbd.dir/src/utiliy.cpp.o -c /home/chenyaxuan123/CYRBD/src/utiliy.cpp
+CMakeFiles/rbd.dir/src/rbd_utility.cpp.o: CMakeFiles/rbd.dir/flags.make
+CMakeFiles/rbd.dir/src/rbd_utility.cpp.o: /home/chenyaxuan123/CYRBD/src/rbd_utility.cpp
+CMakeFiles/rbd.dir/src/rbd_utility.cpp.o: CMakeFiles/rbd.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/chenyaxuan123/CYRBD/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/rbd.dir/src/rbd_utility.cpp.o"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/rbd.dir/src/rbd_utility.cpp.o -MF CMakeFiles/rbd.dir/src/rbd_utility.cpp.o.d -o CMakeFiles/rbd.dir/src/rbd_utility.cpp.o -c /home/chenyaxuan123/CYRBD/src/rbd_utility.cpp
 
-CMakeFiles/rbd.dir/src/utiliy.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/rbd.dir/src/utiliy.cpp.i"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/chenyaxuan123/CYRBD/src/utiliy.cpp > CMakeFiles/rbd.dir/src/utiliy.cpp.i
+CMakeFiles/rbd.dir/src/rbd_utility.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/rbd.dir/src/rbd_utility.cpp.i"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/chenyaxuan123/CYRBD/src/rbd_utility.cpp > CMakeFiles/rbd.dir/src/rbd_utility.cpp.i
 
-CMakeFiles/rbd.dir/src/utiliy.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/rbd.dir/src/utiliy.cpp.s"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/chenyaxuan123/CYRBD/src/utiliy.cpp -o CMakeFiles/rbd.dir/src/utiliy.cpp.s
+CMakeFiles/rbd.dir/src/rbd_utility.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/rbd.dir/src/rbd_utility.cpp.s"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/chenyaxuan123/CYRBD/src/rbd_utility.cpp -o CMakeFiles/rbd.dir/src/rbd_utility.cpp.s
 
 # Object files for target rbd
 rbd_OBJECTS = \
 "CMakeFiles/rbd.dir/src/rbd.cpp.o" \
-"CMakeFiles/rbd.dir/src/utiliy.cpp.o"
+"CMakeFiles/rbd.dir/src/rbd_utility.cpp.o"
 
 # External object files for target rbd
 rbd_EXTERNAL_OBJECTS =
 
 rbd: CMakeFiles/rbd.dir/src/rbd.cpp.o
-rbd: CMakeFiles/rbd.dir/src/utiliy.cpp.o
+rbd: CMakeFiles/rbd.dir/src/rbd_utility.cpp.o
 rbd: CMakeFiles/rbd.dir/build.make
 rbd: /usr/local/lib/libigraph.a
 rbd: /usr/lib/x86_64-linux-gnu/libm.so

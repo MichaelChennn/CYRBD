@@ -6,7 +6,7 @@
 #include <igraph.h>
 #include <unordered_set>
 #include <set>
-#include <utility>
+#include <rbd_utility.h>
 
 namespace rbd
 {

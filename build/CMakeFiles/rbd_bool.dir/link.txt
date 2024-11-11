@@ -1,1 +1,1 @@
-/usr/bin/g++ -g CMakeFiles/rbd_bool.dir/src/rbd_bool.cpp.o -o rbd_bool  /usr/local/lib/libigraph.a -lm /usr/lib/gcc/x86_64-linux-gnu/9/libgomp.so /usr/lib/x86_64-linux-gnu/libpthread.so 
+/usr/bin/g++ -g CMakeFiles/rbd_bool.dir/src/rbd_bool.cpp.o CMakeFiles/rbd_bool.dir/src/rbd_utility.cpp.o -o rbd_bool  /usr/local/lib/libigraph.a -lm /usr/lib/gcc/x86_64-linux-gnu/9/libgomp.so /usr/lib/x86_64-linux-gnu/libpthread.so 

@@ -29,6 +29,7 @@ namespace rbd_bool{
             for (const auto & j_cut_set: j_element["min-cutsets"])
             {
                 std::vector<int> cutsetVec(j_cut_set.begin(), j_cut_set.end());
+                std::sort(cutsetVec.begin(), cutsetVec.end());
                 cutset.min_cutsets.push_back(cutsetVec);
             }
             min_cutsets.push_back(cutset);
@@ -79,29 +80,76 @@ namespace rbd_bool{
             }
         }
 
+        // if the RC set is equal to set1 means set1 and set2 are disjoint
+        // then return set2
+        if (std::equal(set1.begin(), set1.end(), RC.begin(), RC.end()))
+        {
+            result.push_back(set2);
+            return result;
+        }
+
         // create disjoint sets
         for (size_t i = 0; i < RC.size(); i++)
         {   
-            // add the element to set1, the last element to add is negative
-            int elem_to_add = (i == RC.size() - 1) ? -RC[i] : RC[i];
-            set2.push_back(elem_to_add);
+
+            // every time add one more element from RC to set2 and the last element to add is negative.
+            // special case: -0 is represented by INT32_MIN
+            set2.push_back(RC[i]);
+            // copy the set2 to make sure the original set2 is not changed
+            std::vector<int> set2_copy = set2;
+            if (set2_copy.back() == 0) {
+                set2_copy.back() = INT32_MIN;
+            } else {
+                set2_copy.back() = -set2_copy.back();
+            }
+
+            // sort the set to be added
+            std::sort(set2_copy.begin(), set2_copy.end());
+        
             // save the new set
-            result.push_back(set2);
+            result.push_back(set2_copy);
         }
 
         return result;
     }
 
     std::vector<std::vector<int>> convert_mincutset_to_probaset (std::vector<std::vector<int>> min_cutsets){
-        // TODO: implement this function
-        return NULL;
+        std::vector<std::vector<int>> prob_sets;
+        prob_sets.push_back(min_cutsets[0]);
+
+        for (size_t i = 0; i < min_cutsets.size(); i++)
+        {
+            // spilt the min_cutset into two parts: one selected set and the remaining sets
+            std::vector<int> selected_set = min_cutsets[i];
+            std::vector<std::vector<int>> remaining_sets(min_cutsets.begin() + i + 1, min_cutsets.end());
+            
+            for (const auto& set : remaining_sets)
+            {
+                std::vector<std::vector<int>> disjoint_sets = create_disjoint_set(selected_set, set);
+                
+
+                //TODO: check the absorption rule : x + xy = x
+                for (const auto& disjoint_set : disjoint_sets)
+                {
+                    if (std::find(prob_sets.begin(), prob_sets.end(), disjoint_set) == prob_sets.end()) {
+                        prob_sets.push_back(disjoint_set);
+                    }
+                }
+            }
+            
+            
+        }
+        return min_cutsets;
     }
 
 }
 
 int main() {
-    // using namespace rbd_bool;
-    // std::vector<MinCutset> min_cutsets = read_minimal_cut_set("../minimal_cut_set.json");
+    using namespace rbd_bool;
+    using namespace rbd_utility;
+    std::map<std::string, int> alphabet_int_map = create_alphabet_int_map();
+    std::map<int, std::string> int_alphabet_map = create_int_alphabet_map();
+    std::vector<MinCutset> min_cutsets = read_minimal_cut_set("../minimal_cut_set.json");
     // for (const auto &min_cutset : min_cutsets)
     // {
     //     std::cout << "src: " << min_cutset.src_dst.first << " dst: " << min_cutset.src_dst.second << std::endl;
@@ -114,4 +162,18 @@ int main() {
     //         std::cout << std::endl;
     //     }
     // }
+    std::vector<int> set1 = {1, -3, 4};
+    std::vector<int> set2 = {-1, 2, 3};
+    std::sort(set1.begin(), set1.end());
+    std::sort(set2.begin(), set2.end());
+    std::vector<std::vector<int>> vec_of_vec = create_disjoint_set(set1, set2);
+    for (const auto &vec : vec_of_vec)
+    {
+        for (const auto &elem : vec)
+        {
+            std::cout << elem << " ";
+        }
+        std::cout << std::endl;
+    }
+
 }

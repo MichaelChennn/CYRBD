@@ -190,29 +190,32 @@ src/rbd_bool.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/rbd_bool.dir/build.make CMakeFiles/rbd_bool.dir/src/rbd_bool.cpp.s
 .PHONY : src/rbd_bool.cpp.s
 
-src/utiliy.o: src/utiliy.cpp.o
-.PHONY : src/utiliy.o
+src/rbd_utility.o: src/rbd_utility.cpp.o
+.PHONY : src/rbd_utility.o
 
 # target to build an object file
-src/utiliy.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/rbd.dir/build.make CMakeFiles/rbd.dir/src/utiliy.cpp.o
-.PHONY : src/utiliy.cpp.o
+src/rbd_utility.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/rbd.dir/build.make CMakeFiles/rbd.dir/src/rbd_utility.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/rbd_bool.dir/build.make CMakeFiles/rbd_bool.dir/src/rbd_utility.cpp.o
+.PHONY : src/rbd_utility.cpp.o
 
-src/utiliy.i: src/utiliy.cpp.i
-.PHONY : src/utiliy.i
+src/rbd_utility.i: src/rbd_utility.cpp.i
+.PHONY : src/rbd_utility.i
 
 # target to preprocess a source file
-src/utiliy.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/rbd.dir/build.make CMakeFiles/rbd.dir/src/utiliy.cpp.i
-.PHONY : src/utiliy.cpp.i
+src/rbd_utility.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/rbd.dir/build.make CMakeFiles/rbd.dir/src/rbd_utility.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/rbd_bool.dir/build.make CMakeFiles/rbd_bool.dir/src/rbd_utility.cpp.i
+.PHONY : src/rbd_utility.cpp.i
 
-src/utiliy.s: src/utiliy.cpp.s
-.PHONY : src/utiliy.s
+src/rbd_utility.s: src/rbd_utility.cpp.s
+.PHONY : src/rbd_utility.s
 
 # target to generate assembly for a file
-src/utiliy.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/rbd.dir/build.make CMakeFiles/rbd.dir/src/utiliy.cpp.s
-.PHONY : src/utiliy.cpp.s
+src/rbd_utility.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/rbd.dir/build.make CMakeFiles/rbd.dir/src/rbd_utility.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/rbd_bool.dir/build.make CMakeFiles/rbd_bool.dir/src/rbd_utility.cpp.s
+.PHONY : src/rbd_utility.cpp.s
 
 # Help Target
 help:
@@ -230,9 +233,9 @@ help:
 	@echo "... src/rbd_bool.o"
 	@echo "... src/rbd_bool.i"
 	@echo "... src/rbd_bool.s"
-	@echo "... src/utiliy.o"
-	@echo "... src/utiliy.i"
-	@echo "... src/utiliy.s"
+	@echo "... src/rbd_utility.o"
+	@echo "... src/rbd_utility.i"
+	@echo "... src/rbd_utility.s"
 .PHONY : help
 
 

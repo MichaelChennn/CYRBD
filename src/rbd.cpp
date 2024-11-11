@@ -1,13 +1,4 @@
 #include "rbd.h"
-#include <iostream>
-#include <fstream>
-#include <nlohmann/json.hpp>
-#include <vector>
-#include <string>
-#include <igraph.h>
-#include <unordered_set>
-#include <set>
-#include <utility.h>
 
 using json = nlohmann::json;
 
@@ -226,7 +217,7 @@ namespace rbd
 int main()
 {
     using namespace rbd;
-    using namespace utility;
+    using namespace rbd_utility;
     igraph_t graph = rbd::json_to_igraph("../simple_graph.json");
 
     // aC

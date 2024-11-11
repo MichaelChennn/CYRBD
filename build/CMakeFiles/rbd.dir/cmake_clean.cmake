@@ -1,8 +1,8 @@
 file(REMOVE_RECURSE
   "CMakeFiles/rbd.dir/src/rbd.cpp.o"
   "CMakeFiles/rbd.dir/src/rbd.cpp.o.d"
-  "CMakeFiles/rbd.dir/src/utiliy.cpp.o"
-  "CMakeFiles/rbd.dir/src/utiliy.cpp.o.d"
+  "CMakeFiles/rbd.dir/src/rbd_utility.cpp.o"
+  "CMakeFiles/rbd.dir/src/rbd_utility.cpp.o.d"
   "rbd"
   "rbd.pdb"
 )
