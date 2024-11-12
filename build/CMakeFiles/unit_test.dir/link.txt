@@ -1,1 +1,0 @@
-/usr/bin/g++ -g CMakeFiles/unit_test.dir/src/unit_test.cpp.o CMakeFiles/unit_test.dir/src/rbd_utility.cpp.o CMakeFiles/unit_test.dir/src/rbd_bool.cpp.o CMakeFiles/unit_test.dir/src/rbd.cpp.o -o unit_test  /usr/local/lib/libigraph.a -lm /usr/lib/gcc/x86_64-linux-gnu/9/libgomp.so /usr/lib/x86_64-linux-gnu/libpthread.so 
