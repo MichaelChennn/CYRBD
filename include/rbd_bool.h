@@ -9,7 +9,7 @@
 #include <utility>
 #include <cmath>
 #include <rbd_utility.h>
-#include <stack>
+
 namespace rbd_bool
 {
 
@@ -78,7 +78,7 @@ namespace rbd_bool
      * @brief Read trhe minimal cut set from the json file
      * 
      * @param file_path 
-     * @return sorted std::vector<MinCutset> 
+     * @return std::vector<MinCutset> sorted minimal cut sets
      */
     std::vector<MinCutset> read_minimal_cut_set(const std::string file_path);
 
@@ -101,7 +101,7 @@ namespace rbd_bool
      * 3. return the new disjoint sets {{2, 4, 1}, {2, 4, 1, -3}, {2, 4, 1, 3, -5}}
      * @param set1 
      * @param set2 
-     * @return sorted std::vector<std::vector<int>>
+     * @return std::vector<std::vector<int>> sorted disjoint sets
      * 
      */
     std::vector<std::vector<int>> create_disjoint_set(std::vector<int>& set1, std::vector<int>& set2);
@@ -122,7 +122,7 @@ namespace rbd_bool
      * 5. add the new disjoint sets to the probability sets
      * 6. repeat the steps 2-5 for the second left most set and the remaining sets are the right remaining sets e.g. selected_set = set2, remaining sets = {set3}
      * @param path_sets
-     * @return std::vector<std::vector<int>>
+     * @return std::vector<std::vector<int>> probability sets
      */
     std::vector<std::vector<int>> convert_pathset_to_probaset (const std::vector<std::vector<int>>& path_sets);
 
@@ -130,7 +130,7 @@ namespace rbd_bool
      * @brief Convert the min-cutsets to the probability sets
      * Algorithm is same as the convert_pathset_to_probaset, only the result is inversed
      * @param min_cutsets 
-     * @return std::vector<std::vector<int>> 
+     * @return std::vector<std::vector<int>> probability sets
      */
     std::vector<std::vector<int>> convert_mincutset_to_probaset (const std::vector<std::vector<int>>& min_cutsets);
 
@@ -140,7 +140,7 @@ namespace rbd_bool
      * then the probability is 0.1 * 0.2 * 0.3 + 0.1 * 0.2 * 0.7 = 0.02
      * @param prob_set 
      * @param prob_array 
-     * @return double 
+     * @return the probability in double
      */
     double compute_probability(const std::vector<std::vector<int>>& prob_set, const ProbabilityArray& prob_array);
 }

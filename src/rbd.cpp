@@ -218,7 +218,7 @@ namespace rbd
 // {
 //     using namespace rbd;
 //     using namespace rbd_utility;
-//     igraph_t graph = rbd::json_to_igraph("../simple_graph.json");
+//     igraph_t graph = rbd::json_to_igraph("../topologies/bridge_rbd.json");
 
 //     igraph_vector_int_list_t all_paths;
 //     igraph_vs_t to;
