@@ -9,7 +9,7 @@
 #include <utility>
 #include <cmath>
 #include <rbd_utility.h>
-
+#include <stack>
 namespace rbd_bool
 {
 
@@ -75,14 +75,20 @@ namespace rbd_bool
         }
     };
     /**
-     * @brief read trhe minimal cut set from the json file
+     * @brief Read trhe minimal cut set from the json file
      * 
      * @param file_path 
      * @return sorted std::vector<MinCutset> 
      */
-    std::vector<MinCutset> read_minimal_cut_set(std::string file_path);
+    std::vector<MinCutset> read_minimal_cut_set(const std::string file_path);
 
-    ProbabilityArray read_probability_array(std::string file_path);
+    /**
+     * @brief Read the probability array from the json file
+     * 
+     * @param file_path 
+     * @return ProbabilityArray 
+     */
+    ProbabilityArray read_probability_array(const std::string file_path);
 
     /**
      * @brief Create a couple of disjoint sets from set2
@@ -98,10 +104,10 @@ namespace rbd_bool
      * @return sorted std::vector<std::vector<int>>
      * 
      */
-    std::vector<std::vector<int>> create_disjoint_set(std::vector<int> set1, std::vector<int> set2);
+    std::vector<std::vector<int>> create_disjoint_set(std::vector<int>& set1, std::vector<int>& set2);
 
     /**
-     * @brief Convert the min-cutsets to the probability sets
+     * @brief Convert the path-sets to the probability sets
      * Algorithm:
      * For each min-cutset, create a couple of disjoint sets from the other min-cutset
      * 1. initialize the probability sets as the min-cutsets
@@ -115,9 +121,26 @@ namespace rbd_bool
      *            xy + xy' = x
      * 5. add the new disjoint sets to the probability sets
      * 6. repeat the steps 2-5 for the second left most set and the remaining sets are the right remaining sets e.g. selected_set = set2, remaining sets = {set3}
+     * @param path_sets
+     * @return std::vector<std::vector<int>>
+     */
+    std::vector<std::vector<int>> convert_pathset_to_probaset (const std::vector<std::vector<int>>& path_sets);
+
+    /**
+     * @brief Convert the min-cutsets to the probability sets
+     * Algorithm is same as the convert_pathset_to_probaset, only the result is inversed
      * @param min_cutsets 
      * @return std::vector<std::vector<int>> 
      */
-    std::vector<std::vector<int>> convert_mincutset_to_probaset (std::vector<std::vector<int>> min_cutsets);
+    std::vector<std::vector<int>> convert_mincutset_to_probaset (const std::vector<std::vector<int>>& min_cutsets);
 
+    /**
+     * @brief Compute the probability of the given probability set and the probability array
+     * e.g. prob_set = {{1, 2, 3}, {1, 2, -3}}, prob_array = {0.1, 0.2, 0.3}
+     * then the probability is 0.1 * 0.2 * 0.3 + 0.1 * 0.2 * 0.7 = 0.02
+     * @param prob_set 
+     * @param prob_array 
+     * @return double 
+     */
+    double compute_probability(const std::vector<std::vector<int>>& prob_set, const ProbabilityArray& prob_array);
 }

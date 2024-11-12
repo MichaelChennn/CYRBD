@@ -33,4 +33,20 @@ namespace rbd_utility {
         }
         return alphabet_map;
     }
+
+    void print_vector_int(const std::vector<int>& vec) {
+        std::map<int, std::string> map = create_int_alphabet_map();
+        for (const auto& elem : vec) {
+            std::cout << map[elem] << " ";
+        }
+        std::cout << std::endl;
+    }
+
+    void print_vector_alpahbet(const std::vector<std::string>& vec) {
+        std::map<std::string, int> map = create_alphabet_int_map();
+        for (const auto& elem : vec) {
+            std::cout << map[elem] << " ";
+        }
+        std::cout << std::endl;
+    }
 }

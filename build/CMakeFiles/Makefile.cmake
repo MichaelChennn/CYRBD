@@ -69,4 +69,5 @@ set(CMAKE_MAKEFILE_PRODUCTS
 set(CMAKE_DEPEND_INFO_FILES
   "CMakeFiles/rbd.dir/DependInfo.cmake"
   "CMakeFiles/rbd_bool.dir/DependInfo.cmake"
+  "CMakeFiles/unit_test.dir/DependInfo.cmake"
   )

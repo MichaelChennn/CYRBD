@@ -1,5 +1,6 @@
 /home/chenyaxuan123/CYRBD/build/CMakeFiles/rbd.dir
 /home/chenyaxuan123/CYRBD/build/CMakeFiles/rbd_bool.dir
+/home/chenyaxuan123/CYRBD/build/CMakeFiles/unit_test.dir
 /home/chenyaxuan123/CYRBD/build/CMakeFiles/edit_cache.dir
 /home/chenyaxuan123/CYRBD/build/CMakeFiles/rebuild_cache.dir
 /home/chenyaxuan123/CYRBD/build/_deps/json-build/CMakeFiles/edit_cache.dir

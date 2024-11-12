@@ -264,4 +264,7 @@ CMakeFiles/rbd_bool.dir/src/rbd_utility.cpp.o: \
  /usr/include/c++/9/bits/stl_map.h /usr/include/c++/9/tuple \
  /usr/include/c++/9/array /usr/include/c++/9/bits/uses_allocator.h \
  /usr/include/c++/9/bits/invoke.h /usr/include/c++/9/bits/stl_multimap.h \
- /usr/include/c++/9/bits/erase_if.h
+ /usr/include/c++/9/bits/erase_if.h /usr/include/c++/9/vector \
+ /usr/include/c++/9/bits/stl_uninitialized.h \
+ /usr/include/c++/9/bits/stl_vector.h \
+ /usr/include/c++/9/bits/stl_bvector.h /usr/include/c++/9/bits/vector.tcc

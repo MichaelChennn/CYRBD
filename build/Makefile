@@ -142,12 +142,26 @@ rbd_bool/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/rbd_bool.dir/build.make CMakeFiles/rbd_bool.dir/build
 .PHONY : rbd_bool/fast
 
+#=============================================================================
+# Target rules for targets named unit_test
+
+# Build rule for target.
+unit_test: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 unit_test
+.PHONY : unit_test
+
+# fast build rule for target.
+unit_test/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/unit_test.dir/build.make CMakeFiles/unit_test.dir/build
+.PHONY : unit_test/fast
+
 src/rbd.o: src/rbd.cpp.o
 .PHONY : src/rbd.o
 
 # target to build an object file
 src/rbd.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/rbd.dir/build.make CMakeFiles/rbd.dir/src/rbd.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/unit_test.dir/build.make CMakeFiles/unit_test.dir/src/rbd.cpp.o
 .PHONY : src/rbd.cpp.o
 
 src/rbd.i: src/rbd.cpp.i
@@ -156,6 +170,7 @@ src/rbd.i: src/rbd.cpp.i
 # target to preprocess a source file
 src/rbd.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/rbd.dir/build.make CMakeFiles/rbd.dir/src/rbd.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/unit_test.dir/build.make CMakeFiles/unit_test.dir/src/rbd.cpp.i
 .PHONY : src/rbd.cpp.i
 
 src/rbd.s: src/rbd.cpp.s
@@ -164,6 +179,7 @@ src/rbd.s: src/rbd.cpp.s
 # target to generate assembly for a file
 src/rbd.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/rbd.dir/build.make CMakeFiles/rbd.dir/src/rbd.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/unit_test.dir/build.make CMakeFiles/unit_test.dir/src/rbd.cpp.s
 .PHONY : src/rbd.cpp.s
 
 src/rbd_bool.o: src/rbd_bool.cpp.o
@@ -172,6 +188,7 @@ src/rbd_bool.o: src/rbd_bool.cpp.o
 # target to build an object file
 src/rbd_bool.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/rbd_bool.dir/build.make CMakeFiles/rbd_bool.dir/src/rbd_bool.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/unit_test.dir/build.make CMakeFiles/unit_test.dir/src/rbd_bool.cpp.o
 .PHONY : src/rbd_bool.cpp.o
 
 src/rbd_bool.i: src/rbd_bool.cpp.i
@@ -180,6 +197,7 @@ src/rbd_bool.i: src/rbd_bool.cpp.i
 # target to preprocess a source file
 src/rbd_bool.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/rbd_bool.dir/build.make CMakeFiles/rbd_bool.dir/src/rbd_bool.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/unit_test.dir/build.make CMakeFiles/unit_test.dir/src/rbd_bool.cpp.i
 .PHONY : src/rbd_bool.cpp.i
 
 src/rbd_bool.s: src/rbd_bool.cpp.s
@@ -188,6 +206,7 @@ src/rbd_bool.s: src/rbd_bool.cpp.s
 # target to generate assembly for a file
 src/rbd_bool.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/rbd_bool.dir/build.make CMakeFiles/rbd_bool.dir/src/rbd_bool.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/unit_test.dir/build.make CMakeFiles/unit_test.dir/src/rbd_bool.cpp.s
 .PHONY : src/rbd_bool.cpp.s
 
 src/rbd_utility.o: src/rbd_utility.cpp.o
@@ -197,6 +216,7 @@ src/rbd_utility.o: src/rbd_utility.cpp.o
 src/rbd_utility.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/rbd.dir/build.make CMakeFiles/rbd.dir/src/rbd_utility.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/rbd_bool.dir/build.make CMakeFiles/rbd_bool.dir/src/rbd_utility.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/unit_test.dir/build.make CMakeFiles/unit_test.dir/src/rbd_utility.cpp.o
 .PHONY : src/rbd_utility.cpp.o
 
 src/rbd_utility.i: src/rbd_utility.cpp.i
@@ -206,6 +226,7 @@ src/rbd_utility.i: src/rbd_utility.cpp.i
 src/rbd_utility.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/rbd.dir/build.make CMakeFiles/rbd.dir/src/rbd_utility.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/rbd_bool.dir/build.make CMakeFiles/rbd_bool.dir/src/rbd_utility.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/unit_test.dir/build.make CMakeFiles/unit_test.dir/src/rbd_utility.cpp.i
 .PHONY : src/rbd_utility.cpp.i
 
 src/rbd_utility.s: src/rbd_utility.cpp.s
@@ -215,7 +236,32 @@ src/rbd_utility.s: src/rbd_utility.cpp.s
 src/rbd_utility.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/rbd.dir/build.make CMakeFiles/rbd.dir/src/rbd_utility.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/rbd_bool.dir/build.make CMakeFiles/rbd_bool.dir/src/rbd_utility.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/unit_test.dir/build.make CMakeFiles/unit_test.dir/src/rbd_utility.cpp.s
 .PHONY : src/rbd_utility.cpp.s
+
+src/unit_test.o: src/unit_test.cpp.o
+.PHONY : src/unit_test.o
+
+# target to build an object file
+src/unit_test.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/unit_test.dir/build.make CMakeFiles/unit_test.dir/src/unit_test.cpp.o
+.PHONY : src/unit_test.cpp.o
+
+src/unit_test.i: src/unit_test.cpp.i
+.PHONY : src/unit_test.i
+
+# target to preprocess a source file
+src/unit_test.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/unit_test.dir/build.make CMakeFiles/unit_test.dir/src/unit_test.cpp.i
+.PHONY : src/unit_test.cpp.i
+
+src/unit_test.s: src/unit_test.cpp.s
+.PHONY : src/unit_test.s
+
+# target to generate assembly for a file
+src/unit_test.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/unit_test.dir/build.make CMakeFiles/unit_test.dir/src/unit_test.cpp.s
+.PHONY : src/unit_test.cpp.s
 
 # Help Target
 help:
@@ -227,6 +273,7 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... rbd"
 	@echo "... rbd_bool"
+	@echo "... unit_test"
 	@echo "... src/rbd.o"
 	@echo "... src/rbd.i"
 	@echo "... src/rbd.s"
@@ -236,6 +283,9 @@ help:
 	@echo "... src/rbd_utility.o"
 	@echo "... src/rbd_utility.i"
 	@echo "... src/rbd_utility.s"
+	@echo "... src/unit_test.o"
+	@echo "... src/unit_test.i"
+	@echo "... src/unit_test.s"
 .PHONY : help
 
 

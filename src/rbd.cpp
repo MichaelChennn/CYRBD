@@ -110,7 +110,7 @@ namespace rbd
             }
         }
 
-        utility::export_to_graphviz(graph, "subgraph.dot");
+        rbd_utility::export_to_graphviz(graph, "subgraph.dot");
 
         if (unavail_nodes.empty())
         {
@@ -214,26 +214,41 @@ namespace rbd
 
 }
 
-int main()
-{
-    using namespace rbd;
-    using namespace rbd_utility;
-    igraph_t graph = rbd::json_to_igraph("../simple_graph.json");
+// int main()
+// {
+//     using namespace rbd;
+//     using namespace rbd_utility;
+//     igraph_t graph = rbd::json_to_igraph("../simple_graph.json");
 
-    // aC
-    std::unordered_set<int> avail_nodes = {1,2};
-    std::unordered_set<int> unavail_nodes = {3};
+//     igraph_vector_int_list_t all_paths;
+//     igraph_vs_t to;
+//     igraph_vector_int_list_init(&all_paths, 0);
+//     igraph_vs_1(&to, 6);
+//     igraph_get_all_shortest_paths(&graph, &all_paths, nullptr, nullptr, 0, to, IGRAPH_ALL);
+
+//     for (int i = 0; i < igraph_vector_int_list_size(&all_paths); i++)
+//     {
+//         igraph_vector_int_t *path = igraph_vector_int_list_get_ptr(&all_paths, i);
+//         for (int j = 0; j < igraph_vector_int_size(path); j++)
+//         {
+//             std::cout << VECTOR(*path)[j] << " ";
+//         }
+//         std::cout << std::endl;
+//     }
+//     // // aC
+//     // std::unordered_set<int> avail_nodes = {1,2};
+//     // std::unordered_set<int> unavail_nodes = {3};
    
-    // dot -Tpng graph.dot -o graph.png
-    std::set<std::set<int>> minimal_cut_set = {
-        {1,3},
-        {2,4},
-        {2,5,3},
-        {1,5,4}
-    };
+//     // // dot -Tpng graph.dot -o graph.png
+//     // std::set<std::set<int>> minimal_cut_set = {
+//     //     {1,3},
+//     //     {2,4},
+//     //     {2,5,3},
+//     //     {1,5,4}
+//     // };
 
-    int path = find_path_DFS(graph, 0, 6, avail_nodes, unavail_nodes, minimal_cut_set);
-    std::cout << "Path: " << path << std::endl;
-    export_to_graphviz(graph, "graph.dot");
-    return 0;
-}
+//     // int path = find_path_DFS(graph, 0, 6, avail_nodes, unavail_nodes, minimal_cut_set);
+//     // std::cout << "Path: " << path << std::endl;
+//     // export_to_graphviz(graph, "graph.dot");
+   
+// }
