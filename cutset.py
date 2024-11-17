@@ -1,7 +1,7 @@
 import networkx as nx
 from itertools import combinations, islice
 import numpy as np
-
+import json
 
 def successpaths(H, source, target, weight='weight'):
     return list(nx.shortest_simple_paths(H, source, target, weight=weight))
@@ -70,7 +70,11 @@ def minimalcuts(H, src_, dst_, order=6):
 
 G = nx.Graph()
 
-G.add_nodes_from([0,1,2,3,4,5])
-G.add_edges_from([(0,1),(0,2),(1,3),(1,4),(2,3),(2,4),(3,5),(4,5)])
-result = minimalcuts(G, 0, 5)
+with open('topologies/example_rbd_03.json') as json_file:
+    data = json.load(json_file)
+
+
+G.add_nodes_from(data['nodes']) 
+G.add_edges_from(data['edges'])
+result = minimalcuts(G, 0, 6, 10)
 print(result)

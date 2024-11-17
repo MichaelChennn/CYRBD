@@ -52,6 +52,34 @@ namespace unit_test {
         }    
     }
 
+    void test_example_RBD_02() {
+        std::vector<MinCutset> min_cutsets = read_minimal_cut_set("../topologies/example_rbd_02.json");
+        ProbabilityArray prob_array = read_probability_array("../topologies/example_rbd_02.json");
+        for (const auto &min_cutset : min_cutsets)
+        {
+            std::vector<std::vector<int>> prob_set = convert_mincutset_to_probaset(min_cutset.min_cutsets);
+            std::vector<std::vector<int>> prob_set_from_paper = {{1}, {-1, 2}};
+            double unavailablity_from_rbd_bool = compute_probability(prob_set, prob_array);
+            double availablity_from_paper = compute_probability(prob_set_from_paper, prob_array);
+            assert(unavailablity_from_rbd_bool + availablity_from_paper == 1);
+            std::cout << "Test example RBD 02 from paper pass! " << std::endl;
+        }    
+    }
+
+    void test_example_RBD_03() {
+        std::vector<MinCutset> min_cutsets = read_minimal_cut_set("../topologies/example_rbd_03.json");
+        ProbabilityArray prob_array = read_probability_array("../topologies/example_rbd_03.json");
+        for (const auto &min_cutset : min_cutsets)
+        {
+            std::vector<std::vector<int>> prob_set = convert_mincutset_to_probaset(min_cutset.min_cutsets);
+            std::vector<std::vector<int>> prob_set_from_paper = {{2, 4}, {1, -2, 4}, {1, -4, 5}, {-1, -2, 3, 5}, {-1, 2, 3, -4, 5}};
+            double unavailablity_from_rbd_bool = compute_probability(prob_set, prob_array);
+            double availablity_from_paper = compute_probability(prob_set_from_paper, prob_array);
+            assert(unavailablity_from_rbd_bool + availablity_from_paper == 1);
+            std::cout << "Test example RBD 03 from paper pass! " << std::endl;
+        }    
+    }
+
   
 }
 
@@ -59,5 +87,7 @@ int main() {
     using namespace unit_test;
     test_bridge_RBD();
     test_example_RBD_01();
+    test_example_RBD_02();
+    test_example_RBD_03();
     return 0;
 }
