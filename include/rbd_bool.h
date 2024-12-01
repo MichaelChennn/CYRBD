@@ -3,7 +3,6 @@
 #include <nlohmann/json.hpp>
 #include <vector>
 #include <string>
-#include <igraph.h>
 #include <unordered_set>
 #include <set>
 #include <utility>
@@ -138,9 +137,17 @@ namespace rbd_bool
      * @brief Compute the probability of the given probability set and the probability array
      * e.g. prob_set = {{1, 2, 3}, {1, 2, -3}}, prob_array = {0.1, 0.2, 0.3}
      * then the probability is 0.1 * 0.2 * 0.3 + 0.1 * 0.2 * 0.7 = 0.02
+     * @param src_dst pair
      * @param prob_set 
      * @param prob_array 
      * @return the probability in double
      */
-    double compute_probability(const std::vector<std::vector<int>>& prob_set, const ProbabilityArray& prob_array);
+    double compute_avail(const std::pair<int, int> &src_dst, const std::vector<std::vector<int>> &prob_set, const ProbabilityArray &prob_array);
+
+    double compute_unavail(const std::pair<int, int> &src_dst, const std::vector<std::vector<int>> &prob_set, const ProbabilityArray &prob_array);
+
+    std::map<std::pair<int, int>, double> evaluate_avail(const std::string file_name);
+
+    std::map<std::pair<int, int>, double> evaluate_unavail(const std::string file_name);
+
 }

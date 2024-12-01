@@ -1,7 +1,8 @@
 #include "rbd_bool.h"
 
 using json = nlohmann::json;
-
+//TODO: For debug
+using namespace rbd_utility;
 namespace rbd_bool
 {
 
@@ -203,7 +204,7 @@ namespace rbd_bool
         return convert_pathset_to_probaset(min_cutsets_copy);
     }
 
-    double compute_probability(const std::vector<std::vector<int>> &prob_set, const ProbabilityArray &prob_array)
+    double compute_avail(const std::pair<int, int> &src_dst, const std::vector<std::vector<int>> &prob_set, const ProbabilityArray &prob_array)
     {
         double result = 0;
         for (const auto &set : prob_set)
@@ -217,54 +218,57 @@ namespace rbd_bool
             }
             result += temp;
         }
-        return result;
+        // return prob_array[src_dst.first] * prob_array[src_dst.second] * result;
+        return prob_array[src_dst.first] * prob_array[src_dst.second] * result;
     }
 
+    double compute_unavail(const std::pair<int, int> &src_dst, const std::vector<std::vector<int>> &prob_set, const ProbabilityArray &prob_array)
+    {
+        double result = 0;
+        for (const auto &set : prob_set)
+        {
+            double temp = 1;
+            for (const auto &num : set)
+            {
+                // -0 is represented by INT32_MIN
+                // ProbabilityArray class will handle this case
+                temp *= prob_array[num];
+            }
+            result += temp;
+        }
+
+        std::pair<int, int> reversed_src_dst = reverse_src_dst(src_dst);
+
+        return prob_array[reversed_src_dst.first] * prob_array[reversed_src_dst.second] * result;
+    }
+
+    std::map<std::pair<int, int>, double> evaluate_unavail(const std::string file_name) {
+        // TODO: for debug
+        std::map<int, std::string> int_alphabet_map = create_int_alphabet_map();
+        std::map<std::string, int> alphabet_int_map = create_alphabet_int_map();
+
+
+        std::vector<MinCutset> min_cutsets = read_minimal_cut_set(file_name);
+        ProbabilityArray prob_array = read_probability_array(file_name);
+        std::map<std::pair<int, int>, double> result;
+        for (const auto &cutset : min_cutsets)
+        {   
+            //TODO: for debug
+            for (const auto &set : cutset.min_cutsets)
+            {
+                print_vector_int(set);
+            }
+            std::vector<std::vector<int>> prob_sets = convert_mincutset_to_probaset(cutset.min_cutsets);
+            std::cout << "src_dst: " << cutset.src_dst.first << " " << cutset.src_dst.second << std::endl;
+            // TODO: for debug
+            for (const auto &set : prob_sets)
+            {
+                print_vector_int(set);
+            }
+            
+            double prob = compute_unavail(cutset.src_dst, prob_sets, prob_array);
+            result[cutset.src_dst] = prob;
+        }
+        return result;
+    }
 }
-
-// int main()
-// {
-//     // using namespace rbd_bool;
-//     // using namespace rbd_utility;
-//     // std::map<std::string, int> alphabet_int_map = create_alphabet_int_map();
-//     // std::map<int, std::string> int_alphabet_map = create_int_alphabet_map();
-//     // std::vector<MinCutset> min_cutsets = read_minimal_cut_set("../topologies/bridge_rbd.json");
-
-//     // for (const auto &min_cutset : min_cutsets)
-//     // {
-//     //     std::vector<std::vector<int>> prob_set = convert_mincutset_to_probaset(min_cutset.min_cutsets);
-//     //     for (const auto &set : prob_set)
-//     //     {
-//     //         for (const auto &elem : set)
-//     //         {
-//     //             std::cout << int_alphabet_map[elem] << " ";
-//     //         }
-//     //         std::cout << std::endl;
-//     //     }
-//     //     double my_prob = compute_probability(prob_set, read_probability_array("../topologies/bridge_rbd.json"));
-//     //     std::cout << "My unavail is: " << my_prob << std::endl;
-//     // }
-//     // ProbabilityArray prob_array = read_probability_array("../simple_graph.json");
-
-//     // std::vector<std::vector<int>> prob_set = {{1, 3}, {1, -3, 4}, {-1, 2, 3}, {-1, 2, -3, 4}};
-//     // double prob = compute_probability(prob_set, prob_array);
-//     // std::cout << "The avail is: " << prob << std::endl;
-
-//     // std::vector<std::vector<int>> fake_set = {{-1, -2}, {1, -3, -4}, {-1, 2, -3, -4}};
-//     // double my_prob = compute_probability(fake_set, prob_array);
-//     // std::cout << "My unavail is: " << my_prob << std::endl;
-//     // double sum = my_prob + prob;
-//     // std::cout << "The sum is: " << sum << std::endl;
-
-//     // std::vector<std::vector<int>> avail_from_paper = {{1, 3, -2, -4}, {1, -3, -2, 4, -5}, {1, -3, -2, -4}, {-1, 3, 2, -4, -5}, {-1, 3, -2, -4}, {-1, -3}};
-//     // double avail_prob = compute_probability(avail_from_paper, prob_array);
-//     // std::cout << "The availability is: " << avail_prob << std::endl;
-//     // std::vector<std::vector<int>> unavail_from_paper = {{1, 2, 3}, {1, 3, -2, 4}, {1, -3, 2}, {1, -3, -2, 4, 5}, {-1, 3, 2, 4}, {-1, 3, 2, -4, 5}, {-1, 3, -2, 4}};
-//     // double unavail_prob = compute_probability(unavail_from_paper, prob_array);
-//     // std::cout << "The unavailability is: " << unavail_prob << std::endl;
-//     // double sum = avail_prob + unavail_prob;
-//     // std::cout << "The sum is: " << sum << std::endl;
-//     // std::vector<std::vector<int>> prob_set = {{1, 3}, {-1, 2, 4}, {1, 2, -3, 4}, {-1, -2, 5}, {2, -4, 1, 5},{-2,1,-3,5}};
-//     // double prob = compute_probability(prob_set, prob_array);
-//     // std::cout << "My compute unavailability is: " << prob << std::endl;
-// }

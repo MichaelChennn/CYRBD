@@ -6,7 +6,7 @@
         [1, 3],
         [2, 3]
     ],
-    "probability" : [0.13, 0.45, 0.26, 0.89],
+    "probability" : [0.99, 0.99, 0.99, 0.99],
     "minimal_cutsets": [
         {
             "src-dst" : [0, 3],

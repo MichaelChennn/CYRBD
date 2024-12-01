@@ -3,7 +3,6 @@
 #include <nlohmann/json.hpp>
 #include <vector>
 #include <string>
-#include <igraph.h>
 #include <unordered_set>
 #include <set>
 #include <rbd_utility.h>

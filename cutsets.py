@@ -3,18 +3,36 @@ from itertools import combinations, islice
 import numpy as np
 import json
 
+def read_graph_from_json(file_path):
+    with open(file_path, 'r') as file:
+        data = json.load(file)
+    
+    G = nx.Graph()
+    G.add_nodes_from(data["nodes"])
+    G.add_edges_from(data["edges"])
+    
+    return G, data
+
+def write_graph_to_json(file_path, G, data):
+    with open(file_path, 'w') as file:
+        json.dump(data, file, indent=1, separators=(',', ': '))
+
+
 def successpaths(H, source, target, weight='weight'):
     return list(nx.shortest_simple_paths(H, source, target, weight=weight))
 
 
 # Function for Finding Minimal cuts
 def minimalcuts(H, src_, dst_, order=6):
+    # modified here
     paths = list(islice(nx.shortest_simple_paths(H, src_, dst_, weight='weight'), 2))
+
+    # TODO: bug fix?
     minimal = []
 
     if [src_, dst_] in paths:
-        minimal.append(src_)
-        minimal.append(dst_)
+        minimal.append([src_])
+        minimal.append([dst_])
     else:
         paths = successpaths(H, src_, dst_)
         pairs = np.array(H.nodes)
@@ -68,13 +86,25 @@ def minimalcuts(H, src_, dst_, order=6):
 
     return minimal
 
-G = nx.Graph()
+def main():
+    G, data = read_graph_from_json('topologies/bridge_rbd_copy.json')
 
-with open('topologies/example_rbd_03.json') as json_file:
-    data = json.load(json_file)
+    minimal_cutsets = []
+    for src in data["nodes"]:
+        for dst in data["nodes"]:
+            if src != dst:
+                cutsets = minimalcuts(G, src, dst)
+                if cutsets:
+                    minimal_cutsets.append({
+                        "src-dst": [src, dst],
+                        "min-cutsets": cutsets
+                    })
 
+    data["minimal_cutsets"] = minimal_cutsets
+    write_graph_to_json('topologies/bridge_rbd_test.json', G, data)
+    # cutsets = minimalcuts(G, 0, 1)
+    for cutset in minimal_cutsets:
+        print(cutset)
 
-G.add_nodes_from(data['nodes']) 
-G.add_edges_from(data['edges'])
-result = minimalcuts(G, 0, 6, 10)
-print(result)
+if __name__ == '__main__':
+    main()
