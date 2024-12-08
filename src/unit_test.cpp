@@ -12,13 +12,13 @@ namespace unit_test {
     void test_bridge_RBD() {
         std::cout << "==========Test Bridge RBD==========" << std::endl;
         std::string file_path = "../topologies/bridge_rbd_test.json";
-        std::map<std::pair<int, int>, double> unavail_map = evaluate_unavail(file_path);
-        std::cout << std::fixed << std::setprecision(8);
+        std::map<std::pair<int, int>, double> unavail_map = evaluate_avail(file_path);
+        std::cout << std::fixed << std::setprecision(16);
         for (const auto &elem : unavail_map)
         {
             std::pair<int, int> src_dst = elem.first;
             double unavail = elem.second;
-            std::cout << "The unavailability from " << src_dst.first << " to " << src_dst.second << " is " << unavail << std::endl;
+            std::cout << "The availability from " << src_dst.first << " to " << src_dst.second << " is " << unavail << std::endl;
         }
 
     }
@@ -69,14 +69,21 @@ namespace unit_test {
     //     }    
     // }
 
+    void fake_test() {
+        double result = 0.99 * 0.99 * 0.999898;
+        std::cout << result << std::endl;
+    }
+
   
 }
 
 int main() {
     using namespace unit_test;
     test_bridge_RBD();
+    // fake_test();
     // test_example_RBD_01();
     // test_example_RBD_02();
     // test_example_RBD_03();
+
     return 0;
 }

@@ -369,9 +369,9 @@ def main():
             if i != j:
                 result, _ = calculate_availability(G, i, j, A_dic)
                 avail = result[0][2]
-                unavail = round(1 - avail, 8)
+                # unavail = 1 - avail
                 
-                avail_map[(i, j)] = unavail
+                avail_map[(i, j)] = avail
 
 
     print(avail_map)

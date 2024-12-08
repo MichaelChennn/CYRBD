@@ -103,7 +103,7 @@ namespace rbd_bool
      * @return std::vector<std::vector<int>> sorted disjoint sets
      * 
      */
-    std::vector<std::vector<int>> create_disjoint_set(std::vector<int>& set1, std::vector<int>& set2);
+    std::vector<std::vector<int>> create_disjoint_set(std::vector<int> set1, std::vector<int> set2);
 
     /**
      * @brief Convert the path-sets to the probability sets
@@ -123,7 +123,7 @@ namespace rbd_bool
      * @param path_sets
      * @return std::vector<std::vector<int>> probability sets
      */
-    std::vector<std::vector<int>> convert_pathset_to_probaset (const std::vector<std::vector<int>>& path_sets);
+    // std::vector<std::vector<int>> convert_pathset_to_probaset (std::vector<std::vector<int>>& path_sets);
 
     /**
      * @brief Convert the min-cutsets to the probability sets
@@ -131,7 +131,7 @@ namespace rbd_bool
      * @param min_cutsets 
      * @return std::vector<std::vector<int>> probability sets
      */
-    std::vector<std::vector<int>> convert_mincutset_to_probaset (const std::vector<std::vector<int>>& min_cutsets);
+    std::vector<std::vector<int>> convert_mincutset_to_probaset (const std::vector<std::vector<int>>& min_cutsets, const std::pair<int, int>& src_dst);
 
     /**
      * @brief Compute the probability of the given probability set and the probability array
@@ -142,9 +142,9 @@ namespace rbd_bool
      * @param prob_array 
      * @return the probability in double
      */
-    double compute_avail(const std::pair<int, int> &src_dst, const std::vector<std::vector<int>> &prob_set, const ProbabilityArray &prob_array);
+    // double compute_avail(std::pair<int, int> &src_dst, std::vector<std::vector<int>> &prob_set, ProbabilityArray &prob_array);
 
-    double compute_unavail(const std::pair<int, int> &src_dst, const std::vector<std::vector<int>> &prob_set, const ProbabilityArray &prob_array);
+    double compute_avail(const std::pair<int, int> &src_dst, std::vector<std::vector<int>> &prob_set, const ProbabilityArray &prob_array);
 
     std::map<std::pair<int, int>, double> evaluate_avail(const std::string file_name);
 

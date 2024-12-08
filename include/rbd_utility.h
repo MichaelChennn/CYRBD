@@ -13,6 +13,8 @@ void print_vector_int(const std::vector<int>& vec);
 
 void print_vector_alpahbet(const std::vector<std::string>& vec);
 
+void print_vector_of_vector_int(const std::vector<std::vector<int>>& vec);
+
 std::pair<int, int> reverse_src_dst(const std::pair<int, int>& src_dst);
 
 }

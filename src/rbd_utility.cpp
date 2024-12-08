@@ -71,17 +71,17 @@ namespace rbd_utility {
         int src = src_dst.first;
         int dst = src_dst.second;
 
-        if (src = 0) {
+        if (src == 0) {
             src = INT32_MIN;
-        } else if (src = INT32_MIN) {
+        } else if (src == INT32_MIN) {
             src = 0;
         } else {
             src = -src;
         }
 
-        if (dst = 0) {
+        if (dst == 0) {
             dst = INT32_MIN;
-        } else if (dst = INT32_MIN) {
+        } else if (dst == INT32_MIN) {
             dst = 0;
         } else {
             dst = -dst;
