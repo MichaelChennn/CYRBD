@@ -148,6 +148,5 @@ namespace rbd_bool
 
     std::map<std::pair<int, int>, double> evaluate_avail(const std::string file_name);
 
-    std::map<std::pair<int, int>, double> evaluate_unavail(const std::string file_name);
-
+    double evaluate_avail_single(const std::string file_name, const std::pair<int, int> &src_dst);
 }

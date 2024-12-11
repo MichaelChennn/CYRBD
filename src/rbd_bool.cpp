@@ -149,36 +149,6 @@ namespace rbd_bool
         return result;
     }
 
-    // std::vector<std::vector<int>> convert_pathset_to_probaset(const std::vector<std::vector<int>> &path_sets)
-    // {
-    //     std::vector<std::vector<int>> prob_sets;
-    //     std::vector<std::vector<int>> temp_sets{path_sets.begin(), path_sets.end()};
-    //     // int cur_index = 0;
-
-    //     while (temp_sets.size() > 0)
-    //     {
-    //         if (temp_sets.size() == 1)
-    //         {
-    //             prob_sets.push_back(temp_sets[0]);
-    //             break;
-    //         }
-    //         std::vector<int> selected_set = temp_sets.front();
-    //         prob_sets.push_back(selected_set);
-    //         std::vector<std::vector<int>> remaining_sets(temp_sets.begin() + 1, temp_sets.end());
-    //         temp_sets.clear();
-
-    //         for (const auto &set : remaining_sets)
-    //         {
-    //             std::vector<std::vector<int>> disjoint_sets = create_disjoint_set(selected_set, set);
-    //             for (const auto &disjoint_set : disjoint_sets)
-    //             {
-    //                 temp_sets.push_back(disjoint_set);
-    //             }
-    //         }
-    //     }
-    //     return prob_sets;
-    // }
-
     std::vector<std::vector<int>> convert_mincutset_to_probaset(const std::vector<std::vector<int>> &min_cutsets, const std::pair<int, int> &src_dst)
     {
         std::vector<std::vector<int>> prob_sets;
@@ -199,7 +169,6 @@ namespace rbd_bool
         {
             // Debug print
             // std::cout << "The probaset are empty!" << std::endl;
-
             return {};
         }
 
@@ -250,25 +219,6 @@ namespace rbd_bool
         return prob_sets;
     }
 
-    // double compute_avail(const std::pair<int, int> &src_dst, const std::vector<std::vector<int>> &prob_set, const ProbabilityArray &prob_array)
-    // {
-
-    //     double result = 0;
-    //     for (const auto &set : prob_set)
-    //     {
-    //         double temp = 1;
-    //         for (const auto &num : set)
-    //         {
-    //             // -0 is represented by INT32_MIN
-    //             // ProbabilityArray class will handle this case
-    //             temp *= prob_array[num];
-    //         }
-    //         result += temp;
-    //     }
-    //     // return prob_array[src_dst.first] * prob_array[src_dst.second] * result;
-    //     return result;
-    // }
-
     double compute_avail(const std::pair<int, int> &src_dst, std::vector<std::vector<int>> &prob_set, const ProbabilityArray &prob_array)
     {
         // Debug print
@@ -303,8 +253,8 @@ namespace rbd_bool
         double avail_total = prob_array[src_dst.first] * prob_array[src_dst.second] * avail;
 
         // Debug print
-        std::cout << "The unavailability between ";
-        std::cout << "1.0 - unavailability = " << avail << std::endl;
+        std::cout << "The unavailability between " << src_dst.first << " and " << src_dst.second << " is " << unavil << std::endl;
+        std::cout << "The availability = 1.0 - unavailability = " << avail << std::endl;
         std::cout << "The final availability is " << prob_array[src_dst.first] << " * " << prob_array[src_dst.second] << " * " << avail 
         << " = " << avail_total << std::endl;
         return avail_total;
@@ -325,20 +275,52 @@ namespace rbd_bool
         {
             // Debug print
             std::cout << "=============================================" << std::endl;
-            std::cout << "Handling the min-cutsets from " << cutset.src_dst.first << " to " << cutset.src_dst.second << ":" << std::endl;
+            std::cout << "Current the min-cutsets from " << cutset.src_dst.first << " to " << cutset.src_dst.second << ":" << std::endl;
             print_vector_of_vector_int(cutset.min_cutsets);
-
+            // convert the min-cutsets to the probability sets
             std::vector<std::vector<int>> prob_sets = convert_mincutset_to_probaset(cutset.min_cutsets, cutset.src_dst);
             // Debug print
             std::cout << "The probability sets are: " << std::endl;
             print_vector_of_vector_int(prob_sets);
 
             double prob = compute_avail(cutset.src_dst, prob_sets, prob_array);
-
-            // Debug print
-            std::cout << "=============================================" << std::endl;            
+        
             result[cutset.src_dst] = prob;
         }
         return result;
     }
+
+    double evaluate_avail_single(const std::string file_name, const std::pair<int, int> &src_dst) {
+        // read the minimal cut set and the probability array
+        std::vector<MinCutset> min_cutsets = read_minimal_cut_set(file_name);
+        ProbabilityArray prob_array = read_probability_array(file_name);
+
+        // save the result
+        std::map<std::pair<int, int>, double> result;
+
+        // find the src-dst pair in the minimal cut set file
+        auto it = std::find_if(min_cutsets.begin(), min_cutsets.end(),
+                           [&src_dst](const MinCutset& cutset) {
+                               return cutset.src_dst == src_dst;
+                           });
+        if (it != min_cutsets.end()) {
+            // Debug print
+            std::cout << "=============================================" << std::endl;
+            std::cout << "Current the min-cutsets from " << it->src_dst.first << " to " << it->src_dst.second << ":" << std::endl;
+            print_vector_of_vector_int(it->min_cutsets);
+            // convert the min-cutsets to the probability sets
+            std::vector<std::vector<int>> prob_sets = convert_mincutset_to_probaset(it->min_cutsets, it->src_dst);
+            // Debug print
+            std::cout << "The probability sets are: " << std::endl;
+            print_vector_of_vector_int(prob_sets);
+
+            double prob = compute_avail(it->src_dst, prob_sets, prob_array);
+            return prob;
+        } else {
+            std::cerr << "Cannot find the src-dst pair in the minimal cut set file" << std::endl;
+            return 0.0;
+        }
+    }
+
+
 }

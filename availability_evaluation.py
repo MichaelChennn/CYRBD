@@ -268,7 +268,7 @@ def process_topology(G, source_node, target_node, A_dic):
             # Calculate availability for each component value
             availabilities = availability_evaluation(one_results, zero_results, component_data,
                                                      source_availability, target_availability)
-            print('Overall Availability :', availabilities)
+            # print('Overall Availability :', availabilities)
             data.append((source_node, target_node, availabilities))
 
 
@@ -294,7 +294,7 @@ def process_topology(G, source_node, target_node, A_dic):
             source_availability = A_dic.get(source_node)
             target_availability = A_dic.get(target_node)
             availabilities = source_availability * target_availability
-            print('Overall Availability :', availabilities)
+            # print('Overall Availability :', availabilities)
             data.append((source_node, target_node, availabilities))
 
         elif isinstance(A_dic, list):
@@ -344,37 +344,64 @@ def calculate_availability(G, source, target, A_dic):
     return result,combined_results
 
 
-def read_graph_from_json(file_path):
-    with open(file_path, 'r') as file:
-        data = json.load(file)
+# def read_graph_from_json(file_path):
+#     with open(file_path, 'r') as file:
+#         data = json.load(file)
 
-    G = nx.Graph()
-    G.add_nodes_from(data["nodes"])
-    G.add_edges_from(data["edges"])
+#     G = nx.Graph()
+#     G.add_nodes_from(data["nodes"])
+#     G.add_edges_from(data["edges"])
 
-    return G, data
+#     return G, data
 
 
-def write_graph_to_json(file_path, G, data):
+def write_graph_to_json(file_path, G, probablity):
+    data = {"nodes": list(G.nodes()), "edges": list(G.edges())}
+    proba_list = [probablity] * len(data["nodes"])
+    data["probability"] = proba_list
+
+    minimal_cutsets = []
+    for src in data["nodes"]:
+        for dst in data["nodes"]:
+            if src != dst:
+                cutsets = minimalcuts(G, src, dst)
+                if cutsets:
+                    minimal_cutsets.append({
+                        "src-dst": [src, dst],
+                        "min-cutsets": cutsets
+                    })
+    data["minimal_cutsets"] = minimal_cutsets
+    
+    
     with open(file_path, 'w') as file:
         json.dump(data, file, indent=1, separators=(',', ': '))
 
 
 def main():
-    G, data = read_graph_from_json('topologies/bridge_rbd.json')
-    A_dic = {0: 0.99, 1: 0.99, 2: 0.99, 3: 0.99, 4: 0.99, 5: 0.99, 6: 0.99}
-    avail_map = {}
-    for i in range(0, 7):
-        for j in range(0, 7):
+    # G, data = read_graph_from_json('topologies/bridge_rbd.json')
+    # A_dic = {0: 0.99, 1: 0.99, 2: 0.99, 3: 0.99, 4: 0.99, 5: 0.99, 6: 0.99}
+    # avail_map = {}
+    # for i in range(0, 7):
+    #     for j in range(0, 7):
+    #         if i != j:
+    #             result, _ = calculate_availability(G, i, j, A_dic)
+    #             avail = result[0][2]
+    #             # unavail = 1 - avail
+                
+    #             avail_map[(i, j)] = avail
+    #             print(f"Availability from {i} to {j} is {avail}")
+
+    G, pos, lable = read_graph('topologies', 'Abilene')
+    A_dic = {0: 0.99, 1: 0.99, 2: 0.99, 3: 0.99, 4: 0.99, 5: 0.99, 6: 0.99, 7: 0.99, 8: 0.99, 9: 0.99, 10: 0.99}
+    for i in range (0, 11):
+        for j in range (0, 11):
             if i != j:
                 result, _ = calculate_availability(G, i, j, A_dic)
                 avail = result[0][2]
-                # unavail = 1 - avail
-                
-                avail_map[(i, j)] = avail
-
-
-    print(avail_map)
+                print(f"Availability from {i} to {j} is {avail}")
+    
+    # write_graph_to_json('topologies/Abilene.json', G, 0.99)
+    
 
 if __name__ == '__main__':
     main()
