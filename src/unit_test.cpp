@@ -12,8 +12,8 @@ namespace unit_test {
     void test_bridge_RBD() {
         std::cout << "==========Test Bridge RBD==========" << std::endl;
         std::string file_path = "../topologies/bridge_rbd.json";
-        std::map<std::pair<int, int>, double> unavail_map = evaluate_avail(file_path);
-        std::cout << std::fixed << std::setprecision(16);
+        std::map<std::pair<int, int>, double> unavail_map = evaluateAvailabilityTopology(file_path);
+        std::cout << std::fixed << std::setprecision(9);
         for (const auto &elem : unavail_map)
         {
             std::pair<int, int> src_dst = elem.first;
@@ -26,7 +26,7 @@ namespace unit_test {
     void test_Abilene() {
         std::cout << "==========Test Abilene==========" << std::endl;
         std::string file_path = "../topologies/Abilene.json";
-        std::map<std::pair<int, int>, double> unavail_map = evaluate_avail(file_path);
+        std::map<std::pair<int, int>, double> unavail_map = evaluateAvailabilityTopology(file_path);
         std::cout << std::fixed << std::setprecision(16);
         for (const auto &elem : unavail_map)
         {
@@ -83,8 +83,19 @@ namespace unit_test {
     // }
 
     void fake_test() {
-        double result = 0.99 * 0.99 * 0.999898;
-        std::cout << result << std::endl;
+        std::unordered_map<std::pair<int, int>, std::vector<std::vector<int>>> min_cutsets;
+        std::vector<std::vector<int>> min_cutset_1 = {{1, 3}, {1, -3, 4}, {-1, 2, 3}, {-1, 2, -3, 4}};
+        std::vector<std::vector<int>> min_cutset_2 = {{1}, {-1, 2}};
+        std::vector<std::vector<int>> min_cutset_3 = {{2, 4}, {1, -2, 4}, {1, -4, 5}, {-1, -2, 3, 5}, {-1, 2, 3, -4, 5}};
+        std::pair<int, int> src_dst_1 = {1, 4};
+        std::pair<int, int> src_dst_2 = {1, 2};
+        std::pair<int, int> src_dst_3 = {2, 5};
+        min_cutsets[src_dst_1] = min_cutset_1;
+        min_cutsets[src_dst_2] = min_cutset_2;
+        min_cutsets[src_dst_3] = min_cutset_3;
+
+        std::pair<int, int> src_dst_4 = {1, 4};
+        print_vector_of_vector_int(min_cutsets[src_dst_4]);
     }
 
   
@@ -93,8 +104,8 @@ namespace unit_test {
 int main() {
     using namespace unit_test;
     // test_bridge_RBD();
-    test_Abilene();
-    // fake_test();
+    // test_Abilene();
+    fake_test();
     // test_example_RBD_01();
     // test_example_RBD_02();
     // test_example_RBD_03();

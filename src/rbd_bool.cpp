@@ -6,49 +6,48 @@ using namespace rbd_utility;
 namespace rbd_bool
 {
 
-    std::vector<MinCutset> read_minimal_cut_set(const std::string file_path)
+    std::map<std::pair<int,int>, std::vector<std::vector<int>>> readMinCutSet(const std::string file_path)
     {
         // open the json file
         std::ifstream
             file(file_path);
+
         if (!file.is_open())
         {
-            std::cerr << "Cannot open minimal cut set file" << std::endl;
+            std::cerr << "Reading minimal cut set file error!" << std::endl;
             exit(1);
         }
 
         // create a vector of MinCutset
-        std::vector<MinCutset> min_cutsets;
+        std::map<std::pair<int,int>, std::vector<std::vector<int>>> min_cut_sets;
 
         // read the json file
         json j = json::parse(file);
         if (j.contains("minimal_cutsets"))
         {
-            for (const auto &j_element : j["minimal_cutsets"])
-            {
-                MinCutset cutset;
-                cutset.src_dst = {j_element["src-dst"][0], j_element["src-dst"][1]};
-                for (const auto &j_cut_set : j_element["min-cutsets"])
-                {
-                    std::vector<int> cutsetVec(j_cut_set.begin(), j_cut_set.end());
+            for (auto &it :j["minimal_cutsets"]) {
+                std::pair<int, int> src_dst = {it["src-dst"][0], it["src-dst"][1]};
+                std::vector<std::vector<int>> tmp_min_cutsets;
+                for (auto &min_cutset : it["min-cutsets"]) {
+                    std::vector<int> cutsetVec(min_cutset.begin(), min_cutset.end());
                     std::sort(cutsetVec.begin(), cutsetVec.end());
-                    cutset.min_cutsets.push_back(cutsetVec);
+                    tmp_min_cutsets.push_back(cutsetVec);
                 }
-                min_cutsets.push_back(cutset);
+                min_cut_sets[src_dst] = tmp_min_cutsets;
             }
         }
         else
         {
-            std::cerr << "Cannot find minimal_cutsets in the json file" << std::endl;
+            std::cerr << "Minimal cut sets in the json file not found!" << std::endl;
         }
 
         // close the file
         file.close();
 
-        return min_cutsets;
+        return min_cut_sets;
     }
 
-    ProbabilityArray read_probability_array(const std::string file_path)
+    ProbabilityArray readProbabilityArray(const std::string file_path)
     {
         // open the json file
         std::ifstream file(file_path);
@@ -71,7 +70,7 @@ namespace rbd_bool
         return prob_array;
     }
 
-    std::vector<std::vector<int>> create_disjoint_set(std::vector<int> set1, std::vector<int> set2)
+    std::vector<std::vector<int>> makeDisjointSet(std::vector<int> set1, std::vector<int> set2)
     {
         // check if the set1 and set2 are already disjoint
         // with the rule：when x in set1 and x' in set2, set1 and set2 are disjoint
@@ -149,7 +148,7 @@ namespace rbd_bool
         return result;
     }
 
-    std::vector<std::vector<int>> convert_mincutset_to_probaset(const std::vector<std::vector<int>> &min_cutsets, const std::pair<int, int> &src_dst)
+    std::vector<std::vector<int>> minCutSetToProbaset(const std::vector<std::vector<int>> &min_cutsets, const std::pair<int, int> &src_dst)
     {
         std::vector<std::vector<int>> prob_sets;
         std::vector<std::vector<int>> temp_sets{min_cutsets.begin(), min_cutsets.end()};
@@ -208,7 +207,7 @@ namespace rbd_bool
 
             for (const auto &set : remaining_sets)
             {
-                std::vector<std::vector<int>> disjoint_sets = create_disjoint_set(selected_set, set);
+                std::vector<std::vector<int>> disjoint_sets = makeDisjointSet(selected_set, set);
                 for (const auto &disjoint_set : disjoint_sets)
                 {
                     temp_sets.push_back(disjoint_set);
@@ -219,7 +218,7 @@ namespace rbd_bool
         return prob_sets;
     }
 
-    double compute_avail(const std::pair<int, int> &src_dst, std::vector<std::vector<int>> &prob_set, const ProbabilityArray &prob_array)
+    double probasetToAvailability(const std::pair<int, int> &src_dst, std::vector<std::vector<int>> &prob_set, const ProbabilityArray &prob_array)
     {
         // Debug print
         std::cout << "The unavailability are caculating with form: " << std::endl;
@@ -260,12 +259,12 @@ namespace rbd_bool
         return avail_total;
     }
 
-    std::map<std::pair<int, int>, double> evaluate_avail(const std::string file_name)
+    std::map<std::pair<int, int>, double> evaluateAvailabilityTopology(const std::string file_name)
     {
 
         // read the minimal cut set and the probability array
-        std::vector<MinCutset> min_cutsets = read_minimal_cut_set(file_name);
-        ProbabilityArray prob_array = read_probability_array(file_name);
+        std::vector<MinCutSet> min_cutsets = readMinCutSet(file_name);
+        ProbabilityArray prob_array = readProbabilityArray(file_name);
 
         // save the result
         std::map<std::pair<int, int>, double> result;
@@ -278,29 +277,29 @@ namespace rbd_bool
             std::cout << "Current the min-cutsets from " << cutset.src_dst.first << " to " << cutset.src_dst.second << ":" << std::endl;
             print_vector_of_vector_int(cutset.min_cutsets);
             // convert the min-cutsets to the probability sets
-            std::vector<std::vector<int>> prob_sets = convert_mincutset_to_probaset(cutset.min_cutsets, cutset.src_dst);
+            std::vector<std::vector<int>> prob_sets = minCutSetToProbaset(cutset.min_cutsets, cutset.src_dst);
             // Debug print
             std::cout << "The probability sets are: " << std::endl;
             print_vector_of_vector_int(prob_sets);
 
-            double prob = compute_avail(cutset.src_dst, prob_sets, prob_array);
+            double prob = probasetToAvailability(cutset.src_dst, prob_sets, prob_array);
         
             result[cutset.src_dst] = prob;
         }
         return result;
     }
 
-    double evaluate_avail_single(const std::string file_name, const std::pair<int, int> &src_dst) {
+    double evaluateAvailability(const std::string file_name, const std::pair<int, int> &src_dst) {
         // read the minimal cut set and the probability array
-        std::vector<MinCutset> min_cutsets = read_minimal_cut_set(file_name);
-        ProbabilityArray prob_array = read_probability_array(file_name);
+        std::vector<MinCutSet> min_cutsets = readMinCutSet(file_name);
+        ProbabilityArray prob_array = readProbabilityArray(file_name);
 
         // save the result
         std::map<std::pair<int, int>, double> result;
 
         // find the src-dst pair in the minimal cut set file
         auto it = std::find_if(min_cutsets.begin(), min_cutsets.end(),
-                           [&src_dst](const MinCutset& cutset) {
+                           [&src_dst](const MinCutSet& cutset) {
                                return cutset.src_dst == src_dst;
                            });
         if (it != min_cutsets.end()) {
@@ -309,18 +308,39 @@ namespace rbd_bool
             std::cout << "Current the min-cutsets from " << it->src_dst.first << " to " << it->src_dst.second << ":" << std::endl;
             print_vector_of_vector_int(it->min_cutsets);
             // convert the min-cutsets to the probability sets
-            std::vector<std::vector<int>> prob_sets = convert_mincutset_to_probaset(it->min_cutsets, it->src_dst);
+            std::vector<std::vector<int>> prob_sets = minCutSetToProbaset(it->min_cutsets, it->src_dst);
             // Debug print
             std::cout << "The probability sets are: " << std::endl;
             print_vector_of_vector_int(prob_sets);
 
-            double prob = compute_avail(it->src_dst, prob_sets, prob_array);
+            double prob = probasetToAvailability(it->src_dst, prob_sets, prob_array);
             return prob;
         } else {
             std::cerr << "Cannot find the src-dst pair in the minimal cut set file" << std::endl;
             return 0.0;
         }
     }
+
+    void write_result_to_file(const std::string topologie_name, const std::map<std::pair<int, int>, double> &result) {
+        // create the result file
+        std::string file_path = "../results/" + topologie_name + "_availability.csv";
+        std::ofstream file(file_path);
+        if (!file.is_open()) {
+            std::cerr << "Cannot open the result file" << std::endl;
+            exit(1);
+        }
+
+        // write the result to the file
+        file << "src-dst,availability" << std::endl;
+        for (const auto &pair : result) {
+            file << pair.first.first << "-" << pair.first.second << ",";
+            file << std::fixed << std::setprecision(9) << pair.second << std::endl;
+        }
+
+        // close the file
+        file.close();
+    }
+
 
 
 }

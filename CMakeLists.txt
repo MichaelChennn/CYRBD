@@ -12,6 +12,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 # find igraph library
 # find_package(igraph CONFIG REQUIRED)
 
+# Find and include pybind11
+find_package(pybind11 REQUIRED)
+
 # find nlohmann_json library
 include(FetchContent)
 FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz)
@@ -21,13 +24,6 @@ FetchContent_MakeAvailable(json)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 add_library(rbd_library STATIC src/rbd_utility.cpp src/rbd_bool.cpp)
-# target_link_libraries(rbd_library igraph::igraph nlohmann_json::nlohmann_json)
 target_link_libraries(rbd_library nlohmann_json::nlohmann_json)
-
-# add_executable(rbd src/rbd.cpp)
-# add_executable(rbd_bool src/rbd_bool.cpp)
 add_executable(unit_test src/unit_test.cpp)
-
-# target_link_libraries(rbd rbd_library)
-# target_link_libraries(rbd_bool rbd_library)
 target_link_libraries(unit_test rbd_library)
