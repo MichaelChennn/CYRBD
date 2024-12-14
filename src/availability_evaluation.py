@@ -12,9 +12,81 @@ import pickle as pkl
 import networkx as nx
 import time
 from matplotlib import pyplot as plt
-from cutsets import minimalcuts
 import json
+import networkx as nx
+from itertools import combinations, islice
+import numpy as np
 
+#===================================cutsets.py=================================
+def successpaths(H, source, target, weight='weight'):
+    return list(nx.shortest_simple_paths(H, source, target, weight=weight))
+
+# Function for Finding Minimal cuts
+def minimalcuts(H, src_, dst_, order=6):
+    # modified here
+    paths = list(islice(nx.shortest_simple_paths(H, src_, dst_, weight='weight'), 2))
+
+    # TODO: bug fix?
+    minimal = []
+
+    if [src_, dst_] in paths:
+        minimal.append([src_])
+        minimal.append([dst_])
+    else:
+        paths = successpaths(H, src_, dst_)
+        pairs = np.array(H.nodes)
+        pairs = pairs.tolist()
+
+        pairs = [pair for pair in pairs if pair != src_ and pair != dst_]
+
+        incidence = np.zeros([len(paths), len(pairs)])
+        incidence_cols_name = pairs
+
+        for x in range(len(paths)):
+            for comp in pairs:
+                if comp in paths[x]:
+                    incidence[x, pairs.index(comp)] = 1
+
+        firstpairs = []
+        for k in range(1, order + 1):
+            if incidence.shape[1] == 0:
+                break
+
+            all_ones = [i for i in range(incidence.shape[1]) if incidence[:, i].all()]
+            if k == 1:
+                firstpairs = [k for k in incidence_cols_name if k not in all_ones]
+            for c in all_ones:
+                minimal.append(incidence_cols_name[c])
+
+            if k >= order:
+                continue
+
+            pairs = firstpairs
+            newpairs = list(combinations(pairs, k + 1))
+
+            newpairstodelete = []
+            for i in newpairs:
+                for j in minimal:
+                    if isinstance(j, tuple):
+                        if set(j).issubset(i):
+                            newpairstodelete.append(i)
+                            break
+            newpairs = [i for i in newpairs if i not in newpairstodelete]
+
+            incidence_ = np.zeros([len(paths), len(newpairs)])
+            incidence_cols_name = newpairs
+            for x in range(len(paths)):
+                for y in range(len(newpairs)):
+                    for comp in newpairs[y]:
+                        if comp in paths[x]:
+                            incidence_[x, y] = 1
+                            break
+            incidence = np.copy(incidence_)
+
+    return minimal
+
+
+#===================================availability_evaluation.py=================================
 # Find the most repeated node in cut sets with lowest cardinality
 # Starting Node
 def most_repeated_node(minimal_sets):
@@ -158,7 +230,12 @@ def read_graph(directory, top):
     G = f[0]
     pos = f[1]
     lable = f[2]
+
+    #Yaxuan's modification
+    G.graph['name'] = top
+
     return G, pos, lable
+
 
 # A methods to evaluate the topology
 def process_topology(G, source_node, target_node, A_dic):
@@ -343,64 +420,46 @@ def calculate_availability(G, source, target, A_dic):
 
     return result,combined_results
 
-
-# def read_graph_from_json(file_path):
-#     with open(file_path, 'r') as file:
-#         data = json.load(file)
-
-#     G = nx.Graph()
-#     G.add_nodes_from(data["nodes"])
-#     G.add_edges_from(data["edges"])
-
-#     return G, data
-
-
-def write_graph_to_json(file_path, G, probablity):
+# =================================using c++ implementation=================================
+def write_graph_to_json(G, A_dic):
     data = {"nodes": list(G.nodes()), "edges": list(G.edges())}
-    proba_list = [probablity] * len(data["nodes"])
+    proba_list = [A_dic] * len(data["nodes"])
     data["probability"] = proba_list
 
     minimal_cutsets = []
     for src in data["nodes"]:
         for dst in data["nodes"]:
-            if src != dst:
-                cutsets = minimalcuts(G, src, dst)
-                if cutsets:
-                    minimal_cutsets.append({
-                        "src-dst": [src, dst],
-                        "min-cutsets": cutsets
-                    })
+            dst = src + 1
+            # TODO: bug fix?
+            if dst >= len(data["nodes"]):
+                break
+            cutsets = minimalcuts(G, src, dst)
+            if cutsets:
+                minimal_cutsets.append({
+                    "src-dst": [src, dst],
+                    "min-cutsets": cutsets
+                })
     data["minimal_cutsets"] = minimal_cutsets
-    
-    
+
+    top = G.graph['name']
+    file_path = f"../topologies/{top}/{top}.json"
     with open(file_path, 'w') as file:
         json.dump(data, file, indent=1, separators=(',', ': '))
 
 
-def main():
-    # G, data = read_graph_from_json('topologies/bridge_rbd.json')
-    # A_dic = {0: 0.99, 1: 0.99, 2: 0.99, 3: 0.99, 4: 0.99, 5: 0.99, 6: 0.99}
-    # avail_map = {}
-    # for i in range(0, 7):
-    #     for j in range(0, 7):
-    #         if i != j:
-    #             result, _ = calculate_availability(G, i, j, A_dic)
-    #             avail = result[0][2]
-    #             # unavail = 1 - avail
-                
-    #             avail_map[(i, j)] = avail
-    #             print(f"Availability from {i} to {j} is {avail}")
-
-    G, pos, lable = read_graph('topologies', 'Abilene')
-    A_dic = {0: 0.99, 1: 0.99, 2: 0.99, 3: 0.99, 4: 0.99, 5: 0.99, 6: 0.99, 7: 0.99, 8: 0.99, 9: 0.99, 10: 0.99}
-    for i in range (0, 11):
-        for j in range (0, 11):
-            if i != j:
-                result, _ = calculate_availability(G, i, j, A_dic)
-                avail = result[0][2]
-                print(f"Availability from {i} to {j} is {avail}")
+def calculate_availability_cpp(G, source, target, A_dic):
+    write_graph_to_json(G, A_dic)
+    top = G.graph['name']
+    file_path = f"../topologies/{top}/{top}.json"
+    # result = process_topology_cpp(source, target)
     
-    # write_graph_to_json('topologies/Abilene.json', G, 0.99)
+
+
+def main():
+    G, _, _ = read_graph('../topologies/Germany_17', 'Germany_17')
+    num_nodes = G.number_of_nodes()
+    A_dic = {i: 0.99 for i in range(num_nodes)}
+    write_graph_to_json(G, A_dic)
     
 
 if __name__ == '__main__':

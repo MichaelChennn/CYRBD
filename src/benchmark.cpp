@@ -2,7 +2,7 @@
 #include <chrono>
 
 
-using namespace rbd_bool;
+using namespace rbd;
 
 namespace benchmark {
     void measure_time_topology(const std::string file_name) {
@@ -24,6 +24,7 @@ namespace benchmark {
 
 int main () {
     using namespace benchmark;
-    
+    measure_time_topology("../topologies/Abilene/Abilene.json");
+    measure_time_topology_src_dst("../topologies/Abilene/Abilene.json", {0, 6});
     return 0;
 }

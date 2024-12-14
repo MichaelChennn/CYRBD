@@ -1,9 +1,9 @@
-#include "rbd_bool.h"
+#include "rbd.h"
 
 using json = nlohmann::json;
-// TODO: For debug
-using namespace rbd_utility;
-namespace rbd_bool
+
+
+namespace rbd
 {
 
     std::map<std::pair<int,int>, std::vector<std::vector<int>>> readMinCutSet(const std::string file_path)
@@ -148,7 +148,7 @@ namespace rbd_bool
         return result;
     }
 
-    std::vector<std::vector<int>> minCutSetToProbaset(const std::vector<std::vector<int>> &min_cutsets, const std::pair<int, int> &src_dst)
+    std::vector<std::vector<int>> minCutSetToProbaset(const std::pair<int, int> &src_dst, const std::vector<std::vector<int>> &min_cutsets)
     {
         std::vector<std::vector<int>> prob_sets;
         std::vector<std::vector<int>> temp_sets{min_cutsets.begin(), min_cutsets.end()};
@@ -218,10 +218,10 @@ namespace rbd_bool
         return prob_sets;
     }
 
-    double probasetToAvailability(const std::pair<int, int> &src_dst, std::vector<std::vector<int>> &prob_set, const ProbabilityArray &prob_array)
+    double probasetToAvailability(const std::pair<int, int> &src_dst, const ProbabilityArray &prob_array, std::vector<std::vector<int>> &prob_set)
     {
         // Debug print
-        std::cout << "The unavailability are caculating with form: " << std::endl;
+        // std::cout << "The unavailability are caculating with form: " << std::endl;
 
         // Save the final result
         double unavil = 0.0;
@@ -232,18 +232,19 @@ namespace rbd_bool
             for (const auto &num : set)
             {
                 // Debug print
-                if (num == INT32_MIN)
-                {
-                    std::cout << "-0" << " * ";
-                }
-                else
-                {
-                    std::cout << num << " * ";
-                }
+                // if (num == INT32_MIN)
+                // {
+                //     std::cout << "-0" << " * ";
+                // }
+                // else
+                // {
+                //     std::cout << num << " * ";
+                // }
+
                 temp *= prob_array[num];
             }
             // Debug print
-            std::cout << " += " << temp << std::endl;
+            // std::cout << " += " << temp << std::endl;
 
             unavil += temp;
         }
@@ -252,10 +253,10 @@ namespace rbd_bool
         double avail_total = prob_array[src_dst.first] * prob_array[src_dst.second] * avail;
 
         // Debug print
-        std::cout << "The unavailability between " << src_dst.first << " and " << src_dst.second << " is " << unavil << std::endl;
-        std::cout << "The availability = 1.0 - unavailability = " << avail << std::endl;
-        std::cout << "The final availability is " << prob_array[src_dst.first] << " * " << prob_array[src_dst.second] << " * " << avail 
-        << " = " << avail_total << std::endl;
+        // std::cout << "The unavailability between " << src_dst.first << " and " << src_dst.second << " is " << unavil << std::endl;
+        // std::cout << "The availability = 1.0 - unavailability = " << avail << std::endl;
+        // std::cout << "The final availability is " << prob_array[src_dst.first] << " * " << prob_array[src_dst.second] << " * " << avail 
+        // << " = " << avail_total << std::endl;
         return avail_total;
     }
 
@@ -263,62 +264,48 @@ namespace rbd_bool
     {
 
         // read the minimal cut set and the probability array
-        std::vector<MinCutSet> min_cutsets = readMinCutSet(file_name);
+        std::map<std::pair<int,int>, std::vector<std::vector<int>>> mincutsets_map = readMinCutSet(file_name);
         ProbabilityArray prob_array = readProbabilityArray(file_name);
 
         // save the result
         std::map<std::pair<int, int>, double> result;
 
         // evaluate the unavailability for each src-dst pair
-        for (const auto &cutset : min_cutsets)
+        for (const auto &mincutsets : mincutsets_map)
         {
             // Debug print
-            std::cout << "=============================================" << std::endl;
-            std::cout << "Current the min-cutsets from " << cutset.src_dst.first << " to " << cutset.src_dst.second << ":" << std::endl;
-            print_vector_of_vector_int(cutset.min_cutsets);
+            // std::cout << "=============================================" << std::endl;
+            // std::cout << "Current the min-cutsets from " << cutset.src_dst.first << " to " << cutset.src_dst.second << ":" << std::endl;
+            // print_vector_of_vector_int(cutset.min_cutsets);
             // convert the min-cutsets to the probability sets
-            std::vector<std::vector<int>> prob_sets = minCutSetToProbaset(cutset.min_cutsets, cutset.src_dst);
+            std::vector<std::vector<int>> prob_sets = minCutSetToProbaset(mincutsets.first, mincutsets.second);
             // Debug print
-            std::cout << "The probability sets are: " << std::endl;
-            print_vector_of_vector_int(prob_sets);
+            // std::cout << "The probability sets are: " << std::endl;
+            // print_vector_of_vector_int(prob_sets);
 
-            double prob = probasetToAvailability(cutset.src_dst, prob_sets, prob_array);
+            double availability= probasetToAvailability(mincutsets.first, prob_array, prob_sets);
         
-            result[cutset.src_dst] = prob;
+            result[mincutsets.first] = availability;
         }
         return result;
     }
 
     double evaluateAvailability(const std::string file_name, const std::pair<int, int> &src_dst) {
         // read the minimal cut set and the probability array
-        std::vector<MinCutSet> min_cutsets = readMinCutSet(file_name);
+        std::map<std::pair<int,int>, std::vector<std::vector<int>>> mincutsets_map = readMinCutSet(file_name);
         ProbabilityArray prob_array = readProbabilityArray(file_name);
-
-        // save the result
-        std::map<std::pair<int, int>, double> result;
-
-        // find the src-dst pair in the minimal cut set file
-        auto it = std::find_if(min_cutsets.begin(), min_cutsets.end(),
-                           [&src_dst](const MinCutSet& cutset) {
-                               return cutset.src_dst == src_dst;
-                           });
-        if (it != min_cutsets.end()) {
-            // Debug print
-            std::cout << "=============================================" << std::endl;
-            std::cout << "Current the min-cutsets from " << it->src_dst.first << " to " << it->src_dst.second << ":" << std::endl;
-            print_vector_of_vector_int(it->min_cutsets);
-            // convert the min-cutsets to the probability sets
-            std::vector<std::vector<int>> prob_sets = minCutSetToProbaset(it->min_cutsets, it->src_dst);
-            // Debug print
-            std::cout << "The probability sets are: " << std::endl;
-            print_vector_of_vector_int(prob_sets);
-
-            double prob = probasetToAvailability(it->src_dst, prob_sets, prob_array);
-            return prob;
-        } else {
-            std::cerr << "Cannot find the src-dst pair in the minimal cut set file" << std::endl;
-            return 0.0;
+        // evaluate the unavailability for the given src-dst pair
+        try
+        {
+            std::vector<std::vector<int>> prob_sets = minCutSetToProbaset(src_dst, mincutsets_map[src_dst]);
+            double availability = probasetToAvailability(src_dst, prob_array, prob_sets);
+            return availability;
         }
+        catch(const std::exception& e)
+        {
+            std::cerr << e.what() << '\n';
+        }
+        return 0.0;
     }
 
     void write_result_to_file(const std::string topologie_name, const std::map<std::pair<int, int>, double> &result) {
@@ -340,7 +327,5 @@ namespace rbd_bool
         // close the file
         file.close();
     }
-
-
 
 }

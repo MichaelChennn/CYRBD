@@ -3,23 +3,22 @@
 #include <nlohmann/json.hpp>
 #include <vector>
 #include <string>
-#include <unordered_set>
 #include <set>
 #include <utility>
-#include <cmath>
-#include <rbd_utility.h>
 
-namespace rbd_bool
+
+namespace rbd
 {
 
-    struct MinCutSet
-    {
-        std::pair<int, int> src_dst;
-        std::vector<std::vector<int>> min_cutsets;
-    };
+    // struct MinCutSet
+    // {
+    //     std::pair<int, int> src_dst;
+    //     std::vector<std::vector<int>> min_cutsets;
+    // };
 
     class ProbabilityArray
     {
+    
     private:
         std::vector<double> pos_array;
         std::vector<double> neg_array;
@@ -35,15 +34,14 @@ namespace rbd_bool
 
         double operator[](int i) const
         {
-            // special case for INT32_MIN
-            // INT32_MIN is for -0
+            // INT32_MIN represents -0
             if (i == INT32_MIN)
             {
                 return neg_array[0];
             }
             if (std::abs(i) > pos_array.size())
             {
-                throw std::out_of_range("Index out of range");
+                throw std::out_of_range("Index out of range in ProbabilityArray");
             }
             if (i >= 0)
             {
@@ -73,8 +71,9 @@ namespace rbd_bool
             std::cout << std::endl;
         }
     };
+    
     /**
-     * @brief Read trhe minimal cut set from the json file
+     * @brief Read the minimal cut set from the json file
      * 
      * @param file_path 
      * @return std::vector<MinCutset> sorted minimal cut sets
@@ -89,8 +88,13 @@ namespace rbd_bool
      */
     ProbabilityArray readProbabilityArray(const std::string file_path);
 
-    
-    void writeResultToFile(const std::string file_name, const std::map<std::pair<int, int>, double> &result);
+    /**
+     * @brief Write the result to the a csv file
+     * 
+     * @param file_name 
+     * @param result 
+     */
+    void writeResultToFile(const std::string file_path, const std::map<std::pair<int, int>, double> &result);
 
 
     /**
@@ -104,7 +108,7 @@ namespace rbd_bool
      * 3. return the new disjoint sets {{2, 4, 1}, {2, 4, 1, -3}, {2, 4, 1, 3, -5}}
      * @param set1 
      * @param set2 
-     * @return std::vector<std::vector<int>> sorted disjoint sets
+     * @return std::vector<std::vector<int>> sorted disjointed sets
      * 
      */
     std::vector<std::vector<int>> makeDisjointSet(std::vector<int> set1, std::vector<int> set2);
@@ -130,12 +134,22 @@ namespace rbd_bool
     // std::vector<std::vector<int>> convert_pathset_to_probaset (std::vector<std::vector<int>>& path_sets);
 
     /**
-     * @brief Convert the min-cutsets to the probability sets
-     * Algorithm is same as the convert_pathset_to_probaset, only the result is inversed
+     * @brief Convert the minimal cut sets to the probability sets
+     * Algorithm:
+     * 1. Remove the set: {src} and {dst} from the min-cutsets
+     * 2. Inverse the min-cutsets, e.g. min-cutsets = {{1, 2, 3}, {1, 2, -3}} -> {{-1, -2, -3}, {-1, -2, 3}}
+     * 3. Select the left most set as the selected_set and the remaining min-cutsets as the right remaining sets e.g min-cutsets = {set1, set2, set3}
+     * then selected_set = set1, remaining sets = {set2, set3}
+     * 4. Create the disjoint sets from the set1 and each set in the remaining sets e.g. makeDisjointSet(set1, set2), makeDisjointSet(set1, set3)
+     * 5. The new disjoint set should follow the rules:
+     * Absorption: x + xy = x
+     * 6. Add the new disjoint sets to the probability sets
+     * 7. repeat the steps 2-5 for the second left most set and the remaining sets are the right remaining sets e.g. selected_set = set2, remaining sets = {set3}
+     * @param src_dst 
      * @param min_cutsets 
-     * @return std::vector<std::vector<int>> probability sets
+     * @return std::vector<std::vector<int>> 
      */
-    std::vector<std::vector<int>> minCutSetToProbaset (const std::vector<std::vector<int>>& min_cutsets, const std::pair<int, int>& src_dst);
+    std::vector<std::vector<int>> minCutSetToProbaset (const std::pair<int, int>& src_dst, const std::vector<std::vector<int>>& min_cutsets);
 
     /**
      * @brief Compute the probability of the given probability set and the probability array
@@ -146,11 +160,9 @@ namespace rbd_bool
      * @param prob_array 
      * @return the probability in double
      */
-    // double probasetToAvailability(std::pair<int, int> &src_dst, std::vector<std::vector<int>> &prob_set, ProbabilityArray &prob_array);
-
-    double probasetToAvailability(const std::pair<int, int> &src_dst, std::vector<std::vector<int>> &prob_set, const ProbabilityArray &prob_array);
-
-    std::map<std::pair<int, int>, double> evaluateAvailabilityTopology(const std::string file_name);
+    double probasetToAvailability(const std::pair<int, int> &src_dst, const ProbabilityArray &prob_array, std::vector<std::vector<int>> &prob_set);
 
     double evaluateAvailability(const std::string file_name, const std::pair<int, int> &src_dst);
+
+    std::map<std::pair<int, int>, double> evaluateAvailabilityTopology(const std::string file_name);
 }

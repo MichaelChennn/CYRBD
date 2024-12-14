@@ -1,1 +1,2 @@
-vcpkg install igraph
+vcpkg install igraph (not needed from 14.12.2024)
+vcpkg install pybind11
