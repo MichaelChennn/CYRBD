@@ -18,6 +18,7 @@ from itertools import combinations, islice
 import numpy as np
 
 #===================================cutsets.py=================================
+
 def successpaths(H, source, target, weight='weight'):
     return list(nx.shortest_simple_paths(H, source, target, weight=weight))
 
@@ -87,6 +88,7 @@ def minimalcuts(H, src_, dst_, order=6):
 
 
 #===================================availability_evaluation.py=================================
+
 # Find the most repeated node in cut sets with lowest cardinality
 # Starting Node
 def most_repeated_node(minimal_sets):
@@ -420,29 +422,31 @@ def calculate_availability(G, source, target, A_dic):
 
     return result,combined_results
 
-# =================================using c++ implementation=================================
+# =================================using cpp implementation=================================
 def write_graph_to_json(G, A_dic):
-    data = {"nodes": list(G.nodes()), "edges": list(G.edges())}
-    proba_list = [A_dic] * len(data["nodes"])
-    data["probability"] = proba_list
+    # data = {"nodes": list(G.nodes()), "edges": list(G.edges())}
+    # data["probability"] = list(A_dic.values())
 
+    # TODO: change the json stored probaility list to a dictionary
+    data = {
+        "nodes": list(G.nodes()),
+        "edges": list(G.edges()),
+        "probability": list(A_dic.values())
+    }
     minimal_cutsets = []
     for src in data["nodes"]:
         for dst in data["nodes"]:
-            dst = src + 1
-            # TODO: bug fix?
-            if dst >= len(data["nodes"]):
-                break
-            cutsets = minimalcuts(G, src, dst)
-            if cutsets:
-                minimal_cutsets.append({
-                    "src-dst": [src, dst],
-                    "min-cutsets": cutsets
-                })
+            if src < dst:
+                cutsets = minimalcuts(G, src, dst)
+                if cutsets:
+                    minimal_cutsets.append({
+                        "src-dst": [src, dst],
+                        "min-cutsets": cutsets
+                    })
     data["minimal_cutsets"] = minimal_cutsets
 
     top = G.graph['name']
-    file_path = f"../topologies/{top}/{top}.json"
+    file_path = f"topologies/{top}/{top}.json"
     with open(file_path, 'w') as file:
         json.dump(data, file, indent=1, separators=(',', ': '))
 
@@ -450,16 +454,28 @@ def write_graph_to_json(G, A_dic):
 def calculate_availability_cpp(G, source, target, A_dic):
     write_graph_to_json(G, A_dic)
     top = G.graph['name']
-    file_path = f"../topologies/{top}/{top}.json"
+    file_path = f"topologies/{top}/{top}.json"
     # result = process_topology_cpp(source, target)
     
 
 
 def main():
-    G, _, _ = read_graph('../topologies/Germany_17', 'Germany_17')
+    G, _, _ = read_graph('topologies/Germany_17', 'Germany_17')
+    # num_nodes = G.number_of_nodes()
+    # A_dic = {i:0.99 for i in range(num_nodes)}
+    # write_graph_to_json(G, A_dic)
+
+    #===================================================================================================
+    
     num_nodes = G.number_of_nodes()
-    A_dic = {i: 0.99 for i in range(num_nodes)}
-    write_graph_to_json(G, A_dic)
+    A_dic = {i:0.99 for i in range(num_nodes)}
+    time_start = time.time()
+    for i in G.nodes():
+        for j in G.nodes():
+            if i < j:
+                minimal_cutsets = minimalcuts(G, i, j)
+    time_end = time.time()
+    print('Time:', time_end - time_start)
     
 
 if __name__ == '__main__':

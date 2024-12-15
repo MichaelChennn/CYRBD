@@ -22,6 +22,23 @@ namespace unit_test {
         std::string file_path = "../topologies/Abilene/Abilene.json";
         std::map<std::pair<int, int>, double> unavail_map = evaluateAvailabilityTopology(file_path);
         std::cout << std::fixed << std::setprecision(9);
+        std::string topology_name = "Abilene";
+        writeResultToFile(topology_name, unavail_map);
+        for (const auto &elem : unavail_map)
+        {
+            std::pair<int, int> src_dst = elem.first;
+            double unavail = elem.second;
+            std::cout << "The availability from " << src_dst.first << " to " << src_dst.second << " is " << unavail << std::endl;
+        }
+    }
+
+    void test_Germany_17() {
+        std::cout << "==========Test Germany_17==========" << std::endl;
+        std::string file_path = "../topologies/Germany_17/Germany_17.json";
+        std::map<std::pair<int, int>, double> unavail_map = evaluateAvailabilityTopology(file_path);
+        std::cout << std::fixed << std::setprecision(9);
+        std::string topology_name = "Germany_17";
+        writeResultToFile(topology_name, unavail_map);
         for (const auto &elem : unavail_map)
         {
             std::pair<int, int> src_dst = elem.first;
@@ -99,6 +116,7 @@ int main() {
     using namespace unit_test;
     // test_bridge_RBD();
     test_Abilene();
+    test_Germany_17();
     // fake_test();
     // test_example_RBD_01();
     // test_example_RBD_02();

@@ -14,7 +14,7 @@ namespace rbd
 
         if (!file.is_open())
         {
-            std::cerr << "Reading minimal cut set file error!" << std::endl;
+            std::cerr << "Error on reading minimal cut set file!" << std::endl;
             exit(1);
         }
 
@@ -38,7 +38,7 @@ namespace rbd
         }
         else
         {
-            std::cerr << "Minimal cut sets in the json file not found!" << std::endl;
+            std::cerr << "Error on reading minimal cut sets from the json file!" << std::endl;
         }
 
         // close the file
@@ -53,7 +53,7 @@ namespace rbd
         std::ifstream file(file_path);
         if (!file.is_open())
         {
-            std::cerr << "Cannot open probabilty file" << std::endl;
+            std::cerr << "Error on opening probabilty file" << std::endl;
             exit(1);
         }
 
@@ -308,19 +308,19 @@ namespace rbd
         return 0.0;
     }
 
-    void write_result_to_file(const std::string topologie_name, const std::map<std::pair<int, int>, double> &result) {
+    void writeResultToFile(const std::string topologie_name, const std::map<std::pair<int, int>, double> &result) {
         // create the result file
-        std::string file_path = "../results/" + topologie_name + "_availability.csv";
+        std::string file_path = "../results/" + topologie_name + "_availability_cpp.csv";
         std::ofstream file(file_path);
         if (!file.is_open()) {
-            std::cerr << "Cannot open the result file" << std::endl;
+            std::cerr << "Error on saving result!" << std::endl;
             exit(1);
         }
 
         // write the result to the file
-        file << "src-dst,availability" << std::endl;
+        file << "source,target,availability" << std::endl;
         for (const auto &pair : result) {
-            file << pair.first.first << "-" << pair.first.second << ",";
+            file << pair.first.first << "," << pair.first.second;
             file << std::fixed << std::setprecision(9) << pair.second << std::endl;
         }
 

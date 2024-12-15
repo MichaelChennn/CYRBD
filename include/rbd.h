@@ -94,7 +94,7 @@ namespace rbd
      * @param file_name 
      * @param result 
      */
-    void writeResultToFile(const std::string file_path, const std::map<std::pair<int, int>, double> &result);
+    void writeResultToFile(const std::string topology_name, const std::map<std::pair<int, int>, double> &result);
 
 
     /**
