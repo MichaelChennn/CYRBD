@@ -320,7 +320,7 @@ namespace rbd
         // write the result to the file
         file << "source,target,availability" << std::endl;
         for (const auto &pair : result) {
-            file << pair.first.first << "," << pair.first.second;
+            file << pair.first.first << "," << pair.first.second << ",";
             file << std::fixed << std::setprecision(9) << pair.second << std::endl;
         }
 
