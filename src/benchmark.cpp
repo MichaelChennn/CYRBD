@@ -1,4 +1,4 @@
-#include "benchmark.h"
+#include <rbd.h>
 #include <chrono>
 
 
@@ -11,16 +11,16 @@ namespace benchmark {
         evaluateAvailabilityTopology(file_path);
         auto end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> elapsed = end - start;
-        std::cout << "Time taken: " << elapsed.count() << " seconds" << std::endl;
+        std::cout << "Time for " << topology_name << ": " << elapsed.count() << " seconds" << std::endl;
     }
 
-    void measure_time_topology_src_dst(const std::string topology_name, const std::pair<int, int> &src_dst) {
+    void measure_time_topology_src_dst(const std::string topology_name, const int &src, const int &dst) {
         std::string file_path = "../topologies/" + topology_name + "/" + topology_name + ".json";
         auto start = std::chrono::high_resolution_clock::now();
-        evaluateAvailability(file_path, src_dst);
+        evaluateAvailability(file_path, src, dst);
         auto end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> elapsed = end - start;
-        std::cout << "Time taken: " << elapsed.count() << " seconds" << std::endl;
+        std::cout << "Time for " << topology_name << " from " << src << " to " << dst << ": " << elapsed.count() << " seconds" << std::endl;
     }
 }
 

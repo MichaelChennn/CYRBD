@@ -148,18 +148,18 @@ namespace rbd
         return result;
     }
 
-    std::vector<std::vector<int>> minCutSetToProbaset(const std::pair<int, int> &src_dst, const std::vector<std::vector<int>> &min_cutsets)
+    std::vector<std::vector<int>> minCutSetToProbaset(const int &src, const int &dst, const std::vector<std::vector<int>> &min_cutsets)
     {
         std::vector<std::vector<int>> prob_sets;
         std::vector<std::vector<int>> temp_sets{min_cutsets.begin(), min_cutsets.end()};
 
         // remove the sets: {src} and {dst}
-        auto it_src = std::find(temp_sets.begin(), temp_sets.end(), std::vector<int>{src_dst.first});
+        auto it_src = std::find(temp_sets.begin(), temp_sets.end(), std::vector<int>{src});
         if (it_src != temp_sets.end())
         {
             temp_sets.erase(it_src);
         }
-        auto it_dst = std::find(temp_sets.begin(), temp_sets.end(), std::vector<int>{src_dst.second});
+        auto it_dst = std::find(temp_sets.begin(), temp_sets.end(), std::vector<int>{dst});
         if (it_dst != temp_sets.end())
         {
             temp_sets.erase(it_dst);
@@ -218,7 +218,7 @@ namespace rbd
         return prob_sets;
     }
 
-    double probasetToAvailability(const std::pair<int, int> &src_dst, const ProbabilityArray &prob_array, std::vector<std::vector<int>> &prob_set)
+    double probasetToAvailability(const int &src, const int &dst, const ProbabilityArray &prob_array, std::vector<std::vector<int>> &prob_set)
     {
         // Debug print
         // std::cout << "The unavailability are caculating with form: " << std::endl;
@@ -250,7 +250,7 @@ namespace rbd
         }
 
         double avail = 1.0 - unavil;
-        double avail_total = prob_array[src_dst.first] * prob_array[src_dst.second] * avail;
+        double avail_total = prob_array[src] * prob_array[dst] * avail;
 
         // Debug print
         // std::cout << "The unavailability between " << src_dst.first << " and " << src_dst.second << " is " << unavil << std::endl;
@@ -278,27 +278,28 @@ namespace rbd
             // std::cout << "Current the min-cutsets from " << cutset.src_dst.first << " to " << cutset.src_dst.second << ":" << std::endl;
             // print_vector_of_vector_int(cutset.min_cutsets);
             // convert the min-cutsets to the probability sets
-            std::vector<std::vector<int>> prob_sets = minCutSetToProbaset(mincutsets.first, mincutsets.second);
+            std::vector<std::vector<int>> prob_sets = minCutSetToProbaset(mincutsets.first.first, mincutsets.first.second, mincutsets.second);
             // Debug print
             // std::cout << "The probability sets are: " << std::endl;
             // print_vector_of_vector_int(prob_sets);
 
-            double availability= probasetToAvailability(mincutsets.first, prob_array, prob_sets);
+            double availability= probasetToAvailability(mincutsets.first.first, mincutsets.first.second, prob_array, prob_sets);
         
             result[mincutsets.first] = availability;
         }
         return result;
     }
 
-    double evaluateAvailability(const std::string file_name, const std::pair<int, int> &src_dst) {
+    double evaluateAvailability(const std::string file_name, const int &src, const int &dst) {
         // read the minimal cut set and the probability array
         std::map<std::pair<int,int>, std::vector<std::vector<int>>> mincutsets_map = readMinCutSet(file_name);
         ProbabilityArray prob_array = readProbabilityArray(file_name);
         // evaluate the unavailability for the given src-dst pair
         try
-        {
-            std::vector<std::vector<int>> prob_sets = minCutSetToProbaset(src_dst, mincutsets_map[src_dst]);
-            double availability = probasetToAvailability(src_dst, prob_array, prob_sets);
+        {   
+            std::pair<int, int> src_dst = {src, dst};
+            std::vector<std::vector<int>> prob_sets = minCutSetToProbaset(src, dst, mincutsets_map[src_dst]);
+            double availability = probasetToAvailability(src, dst, prob_array, prob_sets);
             return availability;
         }
         catch(const std::exception& e)
@@ -320,8 +321,17 @@ namespace rbd
         // write the result to the file
         file << "source,target,availability" << std::endl;
         for (const auto &pair : result) {
+            // remove the trailing zeros
+            std::ostringstream out;
+            out << std::fixed << std::setprecision(9) << pair.second;
+            std::string avilability = out.str();
+            avilability.erase(avilability.find_last_not_of('0') + 1, std::string::npos);
+            if (avilability.back() == '.') {
+                avilability.pop_back();
+            }
+            // write the result to the csv file
             file << pair.first.first << "," << pair.first.second << ",";
-            file << std::fixed << std::setprecision(9) << pair.second << std::endl;
+            file << std::fixed << std::setprecision(9) << avilability << std::endl;
         }
 
         // close the file

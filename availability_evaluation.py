@@ -16,6 +16,7 @@ import json
 import networkx as nx
 from itertools import combinations, islice
 import numpy as np
+import build.rbd_bindings
 
 #===================================cutsets.py=================================
 
@@ -247,7 +248,8 @@ def process_topology(G, source_node, target_node, A_dic):
     # Check if there is no direct connection between the source and target nodes with one hop
 
     if nx.shortest_path_length(G, source=source_node, target=target_node) > 1:
-
+        
+    
         # Find all minimal cut sets
         all_cut_sets = minimalcuts(G, source_node, target_node)
 
@@ -423,19 +425,17 @@ def calculate_availability(G, source, target, A_dic):
     return result,combined_results
 
 # =================================using cpp implementation=================================
-def write_graph_to_json(G, A_dic):
+def calculate_all_mincutset(G, A_dic):
     # data = {"nodes": list(G.nodes()), "edges": list(G.edges())}
     # data["probability"] = list(A_dic.values())
 
     # TODO: change the json stored probaility list to a dictionary
     data = {
-        "nodes": list(G.nodes()),
-        "edges": list(G.edges()),
         "probability": list(A_dic.values())
     }
     minimal_cutsets = []
-    for src in data["nodes"]:
-        for dst in data["nodes"]:
+    for src in G.nodes():
+        for dst in G.nodes():
             if src < dst:
                 cutsets = minimalcuts(G, src, dst)
                 if cutsets:
@@ -450,33 +450,89 @@ def write_graph_to_json(G, A_dic):
     with open(file_path, 'w') as file:
         json.dump(data, file, indent=1, separators=(',', ': '))
 
+def calculate_mincutset(G, A_dic, source, target):
+    # TODO: change the json stored probaility list to a dictionary
+    data = {
+        "probability": list(A_dic.values())
+    }
+    minimal_cutsets = []
+    cutsets = minimalcuts(G, source, target)
+    minimal_cutsets.append({
+                    "src-dst": [source, target],
+                    "min-cutsets": cutsets
+                    })
+    data["minimal_cutsets"] = minimal_cutsets
 
-def calculate_availability_cpp(G, source, target, A_dic):
-    write_graph_to_json(G, A_dic)
     top = G.graph['name']
     file_path = f"topologies/{top}/{top}.json"
-    # result = process_topology_cpp(source, target)
+    with open(file_path, 'w') as file:
+        json.dump(data, file, indent=1, separators=(',', ': '))
+
+
+def calculate_availability_cpp(G, source, target, A_dic):
+    calculate_mincutset(G, A_dic, source, target)
+    top = G.graph['name']
+    file_path = f"topologies/{top}/{top}.json"
+    try:
+        result = build.rbd_bindings.evaluateAvailability(file_path, source, target)
+        return result
+    except Exception as e:
+        print(e)
+        return None, None
     
 
 
 def main():
-    G, _, _ = read_graph('topologies/Germany_17', 'Germany_17')
+    Germany_17, _, _ = read_graph('topologies/Germany_17', 'Germany_17')
+    Abilene, _, _ = read_graph('topologies/Abilene', 'Abilene')
+    HiberniaUK, _, _ = read_graph('topologies/HiberniaUk', 'HiberniaUk')
+    dfn_bwin, _, _ = read_graph('topologies/dfn-bwin', 'dfn-bwin')
+    polska, _, _ = read_graph('topologies/polska', 'polska')
+    topologies = [Germany_17, Abilene, HiberniaUK, dfn_bwin, polska]
+    for G in topologies:
+        num_nodes = G.number_of_nodes()
+        A_dic = {i:0.99 for i in range(num_nodes)}
+        calculate_all_mincutset(G, A_dic)
+        print('Done with', G.graph['name'])
+    
     # num_nodes = G.number_of_nodes()
     # A_dic = {i:0.99 for i in range(num_nodes)}
     # write_graph_to_json(G, A_dic)
 
     #===================================================================================================
     
-    num_nodes = G.number_of_nodes()
-    A_dic = {i:0.99 for i in range(num_nodes)}
-    time_start = time.time()
-    for i in G.nodes():
-        for j in G.nodes():
-            if i < j:
-                minimal_cutsets = minimalcuts(G, i, j)
-    time_end = time.time()
-    print('Time:', time_end - time_start)
-    
+    # num_nodes = Germany_17.number_of_nodes()
+    # A_dic = {i:0.99 for i in range(num_nodes)}
+    # total_diff = 0
+    # for i in Germany_17.nodes():
+    #     for j in Germany_17.nodes():
+    #         if i < j:
+    #             time_start = time.time()
+    #             avail = calculate_availability_cpp(Germany_17, i, j, A_dic)
+    #             time_end = time.time()
+    #             time_for_cpp = time_end - time_start
+    #             time_start = time.time()
+    #             avail = calculate_availability(Germany_17, i, j, A_dic)
+    #             time_end = time.time()
+    #             time_for_python = time_end - time_start
+    #             time_diff = time_for_python - time_for_cpp
+    #             total_diff += time_diff
+    #             print('Time for cpp', time_for_cpp)
+    #             print('Time for python', time_for_python)
+    #             print('Time difference', time_diff)
+    # print('Total time difference', total_diff)
+
+    # total_time = 0
+    # for i in Germany_17.nodes():
+    #     for j in Germany_17.nodes():
+    #         if i < j:
+    #             time_start = time.time()
+    #             avail = calculate_availability_cpp(Germany_17, i, j, A_dic)
+    #             time_end = time.time()
+    #             time_for_cpp = time_end - time_start
+    #             total_time += time_for_cpp
+    #             print("Source:", i, "Target:", j, "Availability:", avail, "Time:", time_for_cpp)
+    # print('Total time difference', total_time)
 
 if __name__ == '__main__':
     main()

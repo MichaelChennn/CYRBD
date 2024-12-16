@@ -149,7 +149,7 @@ namespace rbd
      * @param min_cutsets 
      * @return std::vector<std::vector<int>> 
      */
-    std::vector<std::vector<int>> minCutSetToProbaset (const std::pair<int, int>& src_dst, const std::vector<std::vector<int>>& min_cutsets);
+    std::vector<std::vector<int>> minCutSetToProbaset (const int &src, const int &dst, const std::vector<std::vector<int>>& min_cutsets);
 
     /**
      * @brief Compute the probability of the given probability set and the probability array
@@ -160,9 +160,9 @@ namespace rbd
      * @param prob_array 
      * @return the probability in double
      */
-    double probasetToAvailability(const std::pair<int, int> &src_dst, const ProbabilityArray &prob_array, std::vector<std::vector<int>> &prob_set);
+    double probasetToAvailability(const int &src, const int &dst, const ProbabilityArray &prob_array, std::vector<std::vector<int>> &prob_set);
 
-    double evaluateAvailability(const std::string file_name, const std::pair<int, int> &src_dst);
+    double evaluateAvailability(const std::string file_name, const int &src, const int &dst);
 
     std::map<std::pair<int, int>, double> evaluateAvailabilityTopology(const std::string file_name);
 }

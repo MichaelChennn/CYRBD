@@ -24,12 +24,12 @@ namespace unit_test {
         std::cout << std::fixed << std::setprecision(9);
         std::string topology_name = "Abilene";
         writeResultToFile(topology_name, unavail_map);
-        for (const auto &elem : unavail_map)
-        {
-            std::pair<int, int> src_dst = elem.first;
-            double unavail = elem.second;
-            std::cout << "The availability from " << src_dst.first << " to " << src_dst.second << " is " << unavail << std::endl;
-        }
+        // for (const auto &elem : unavail_map)
+        // {
+        //     std::pair<int, int> src_dst = elem.first;
+        //     double unavail = elem.second;
+        //     std::cout << "The availability from " << src_dst.first << " to " << src_dst.second << " is " << unavail << std::endl;
+        // }
     }
 
     void test_Germany_17() {
@@ -39,12 +39,57 @@ namespace unit_test {
         std::cout << std::fixed << std::setprecision(9);
         std::string topology_name = "Germany_17";
         writeResultToFile(topology_name, unavail_map);
-        for (const auto &elem : unavail_map)
-        {
-            std::pair<int, int> src_dst = elem.first;
-            double unavail = elem.second;
-            std::cout << "The availability from " << src_dst.first << " to " << src_dst.second << " is " << unavail << std::endl;
-        }
+        // for (const auto &elem : unavail_map)
+        // {
+        //     std::pair<int, int> src_dst = elem.first;
+        //     double unavail = elem.second;
+        //     std::cout << "The availability from " << src_dst.first << " to " << src_dst.second << " is " << unavail << std::endl;
+        // }
+    }
+
+    void test_HibernialUk() {
+        std::cout << "==========Test Hibernia UK==========" << std::endl;
+        std::string file_path = "../topologies/HiberniaUk/HiberniaUk.json";
+        std::map<std::pair<int, int>, double> unavail_map = evaluateAvailabilityTopology(file_path);
+        std::cout << std::fixed << std::setprecision(9);
+        std::string topology_name = "HiberniaUk";
+        writeResultToFile(topology_name, unavail_map);
+        // for (const auto &elem : unavail_map)
+        // {
+        //     std::pair<int, int> src_dst = elem.first;
+        //     double unavail = elem.second;
+        //     std::cout << "The availability from " << src_dst.first << " to " << src_dst.second << " is " << unavail << std::endl;
+        // }
+    }
+
+    void test_dfn_bwin() {
+        std::cout << "==========Test DFN BWIN==========" << std::endl;
+        std::string file_path = "../topologies/dfn-bwin/dfn-bwin.json";
+        std::map<std::pair<int, int>, double> unavail_map = evaluateAvailabilityTopology(file_path);
+        std::cout << std::fixed << std::setprecision(9);
+        std::string topology_name = "dfn-bwin";
+        writeResultToFile(topology_name, unavail_map);
+        // for (const auto &elem : unavail_map)
+        // {
+        //     std::pair<int, int> src_dst = elem.first;
+        //     double unavail = elem.second;
+        //     std::cout << "The availability from " << src_dst.first << " to " << src_dst.second << " is " << unavail << std::endl;
+        // }
+    }
+
+    void test_polska () {
+        std::cout << "==========Test Polska==========" << std::endl;
+        std::string file_path = "../topologies/polska/polska.json";
+        std::map<std::pair<int, int>, double> unavail_map = evaluateAvailabilityTopology(file_path);
+        std::cout << std::fixed << std::setprecision(9);
+        std::string topology_name = "polska";
+        writeResultToFile(topology_name, unavail_map);
+        // for (const auto &elem : unavail_map)
+        // {
+        //     std::pair<int, int> src_dst = elem.first;
+        //     double unavail = elem.second;
+        //     std::cout << "The availability from " << src_dst.first << " to " << src_dst.second << " is " << unavail << std::endl;
+        // }
     }
 
     // void test_example_RBD_01() {
@@ -117,6 +162,9 @@ int main() {
     // test_bridge_RBD();
     test_Abilene();
     test_Germany_17();
+    test_HibernialUk();
+    test_dfn_bwin();
+    test_polska();
     // fake_test();
     // test_example_RBD_01();
     // test_example_RBD_02();
