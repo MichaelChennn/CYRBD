@@ -17,6 +17,7 @@ import networkx as nx
 from itertools import combinations, islice
 import numpy as np
 import build.rbd_bindings
+import multiprocessing
 
 #===================================cutsets.py=================================
 
@@ -362,7 +363,7 @@ def process_topology(G, source_node, target_node, A_dic):
                 target_availability = component_value
                 availabilities[component_value] = availability_evaluation(one_results, zero_results, component_data,
                                                                           source_availability, target_availability)
-                print('Avalibility with flow avalibilities', component_value, 'is', availabilities[component_value])
+                # print('Avalibility with flow avalibilities', component_value, 'is', availabilities[component_value])
 
             data.append((source_node, target_node, *[availabilities[val] for val in A_dic]))
         else:
@@ -383,7 +384,7 @@ def process_topology(G, source_node, target_node, A_dic):
                 source_availability = component_value
                 target_availability = component_value
                 availabilities[component_value] = source_availability * target_availability
-                print('Avalibility with flow avalibilities', component_value, 'is', availabilities[component_value])
+                # print('Avalibility with flow avalibilities', component_value, 'is', availabilities[component_value])
 
             data.append((source_node, target_node, *[availabilities[val] for val in A_dic]))
 
@@ -424,11 +425,23 @@ def calculate_availability(G, source, target, A_dic):
 
     return result,combined_results
 
-# =================================using cpp implementation=================================
-def calculate_all_mincutset(G, A_dic):
-    # data = {"nodes": list(G.nodes()), "edges": list(G.edges())}
-    # data["probability"] = list(A_dic.values())
 
+
+def evaluate_availability_multiprocessing(G, A_dic):
+    num_cpus = multiprocessing.cpu_count()
+    pool = multiprocessing.Pool(processes=num_cpus)
+
+    node_pairs = list(combinations(G.nodes(), 2))
+
+    results = pool.starmap(calculate_availability, [(G, pair[0], pair[1], A_dic) for pair in node_pairs])
+
+    pool.close()
+    pool.join()
+
+    return results
+
+# =================================cpp implementation=================================
+def calculate_all_mincutset(G, A_dic):
     # TODO: change the json stored probaility list to a dictionary
     data = {
         "probability": list(A_dic.values())
@@ -450,7 +463,7 @@ def calculate_all_mincutset(G, A_dic):
     with open(file_path, 'w') as file:
         json.dump(data, file, indent=1, separators=(',', ': '))
 
-def calculate_mincutset(G, A_dic, source, target):
+def calculate_single_mincutset(G, source, target, A_dic):
     # TODO: change the json stored probaility list to a dictionary
     data = {
         "probability": list(A_dic.values())
@@ -468,9 +481,9 @@ def calculate_mincutset(G, A_dic, source, target):
     with open(file_path, 'w') as file:
         json.dump(data, file, indent=1, separators=(',', ': '))
 
-
 def calculate_availability_cpp(G, source, target, A_dic):
-    calculate_mincutset(G, A_dic, source, target)
+    
+    calculate_single_mincutset(G, source, target, A_dic)
     top = G.graph['name']
     file_path = f"topologies/{top}/{top}.json"
     try:
@@ -480,4 +493,43 @@ def calculate_availability_cpp(G, source, target, A_dic):
         print(e)
         return None, None
     
+def calculate_availability_cpp_v2(G, source, target, A_dic):
+    mincutsets = minimalcuts(G, source, target)
+    probrabilities = list(A_dic.values())
+    try:
+        result = build.rbd_bindings.evaluateAvailability_v2(mincutsets, probrabilities, source, target)
+        return result
+    except Exception as e:
+        print(e)
+        return None, None
 
+def calculate_availability_mutiprocessing_cpp(G, source, target):
+    top = G.graph['name']
+    file_path = f"topologies/{top}/{top}.json"
+    try:
+        result = build.rbd_bindings.evaluateAvailability(file_path, source, target)
+        return result
+    except Exception as e:
+        print(e)
+        return None, None
+
+def evaluate_availability_multiprocessing_cpp(G, A_dic):
+    num_cpus = multiprocessing.cpu_count()
+    pool = multiprocessing.Pool(processes=num_cpus)
+
+    node_pairs = list(combinations(G.nodes(), 2))
+
+    calculate_all_mincutset(G, A_dic)
+    results = pool.starmap(calculate_availability_mutiprocessing_cpp, [(G, pair[0], pair[1]) for pair in node_pairs])
+
+    pool.close()
+    pool.join()
+
+    return results
+    
+if __name__ == '__main__':
+    # Load the graph
+    G, pos, lable = read_graph('topologies/Abilene', 'Abilene')
+    A_dic_09 = {i:0.9 for i in range(G.number_of_nodes())}
+    result = calculate_availability_cpp_v2(G, 0, 1, A_dic_09)
+    print(result)

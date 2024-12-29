@@ -220,9 +220,6 @@ namespace rbd
 
     double probasetToAvailability(const int &src, const int &dst, const ProbabilityArray &prob_array, std::vector<std::vector<int>> &prob_set)
     {
-        // Debug print
-        // std::cout << "The unavailability are caculating with form: " << std::endl;
-
         // Save the final result
         double unavil = 0.0;
         for (const auto &set : prob_set)
@@ -231,32 +228,14 @@ namespace rbd
             double temp = 1.0;
             for (const auto &num : set)
             {
-                // Debug print
-                // if (num == INT32_MIN)
-                // {
-                //     std::cout << "-0" << " * ";
-                // }
-                // else
-                // {
-                //     std::cout << num << " * ";
-                // }
-
                 temp *= prob_array[num];
             }
-            // Debug print
-            // std::cout << " += " << temp << std::endl;
-
             unavil += temp;
         }
 
         double avail = 1.0 - unavil;
         double avail_total = prob_array[src] * prob_array[dst] * avail;
 
-        // Debug print
-        // std::cout << "The unavailability between " << src_dst.first << " and " << src_dst.second << " is " << unavil << std::endl;
-        // std::cout << "The availability = 1.0 - unavailability = " << avail << std::endl;
-        // std::cout << "The final availability is " << prob_array[src_dst.first] << " * " << prob_array[src_dst.second] << " * " << avail 
-        // << " = " << avail_total << std::endl;
         return avail_total;
     }
 
@@ -273,16 +252,8 @@ namespace rbd
         // evaluate the unavailability for each src-dst pair
         for (const auto &mincutsets : mincutsets_map)
         {
-            // Debug print
-            // std::cout << "=============================================" << std::endl;
-            // std::cout << "Current the min-cutsets from " << cutset.src_dst.first << " to " << cutset.src_dst.second << ":" << std::endl;
-            // print_vector_of_vector_int(cutset.min_cutsets);
-            // convert the min-cutsets to the probability sets
             std::vector<std::vector<int>> prob_sets = minCutSetToProbaset(mincutsets.first.first, mincutsets.first.second, mincutsets.second);
-            // Debug print
-            // std::cout << "The probability sets are: " << std::endl;
-            // print_vector_of_vector_int(prob_sets);
-
+    
             double availability= probasetToAvailability(mincutsets.first.first, mincutsets.first.second, prob_array, prob_sets);
         
             result[mincutsets.first] = availability;
@@ -299,6 +270,21 @@ namespace rbd
         {   
             std::pair<int, int> src_dst = {src, dst};
             std::vector<std::vector<int>> prob_sets = minCutSetToProbaset(src, dst, mincutsets_map[src_dst]);
+            double availability = probasetToAvailability(src, dst, prob_array, prob_sets);
+            return availability;
+        }
+        catch(const std::exception& e)
+        {
+            std::cerr << e.what() << '\n';
+        }
+        return 0.0;
+    }
+
+    double evaluateAvailability_v2(const std::vector<std::vector<int>>& min_cutsets, const ProbabilityArray& prob_array, const int &src, int dst) {
+        // evaluate the unavailability for the given src-dst pair
+        try
+        {   
+            std::vector<std::vector<int>> prob_sets = minCutSetToProbaset(src, dst, min_cutsets);
             double availability = probasetToAvailability(src, dst, prob_array, prob_sets);
             return availability;
         }

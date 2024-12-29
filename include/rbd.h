@@ -10,12 +10,6 @@
 namespace rbd
 {
 
-    // struct MinCutSet
-    // {
-    //     std::pair<int, int> src_dst;
-    //     std::vector<std::vector<int>> min_cutsets;
-    // };
-
     class ProbabilityArray
     {
     
@@ -162,7 +156,32 @@ namespace rbd
      */
     double probasetToAvailability(const int &src, const int &dst, const ProbabilityArray &prob_array, std::vector<std::vector<int>> &prob_set);
 
+    /**
+     * @brief Evaluate the availability for a specific src-dst pair and topology file
+     * 
+     * @param file_name 
+     * @param src 
+     * @param dst 
+     * @return the availability in double
+     */
     double evaluateAvailability(const std::string file_name, const int &src, const int &dst);
 
+    /**
+     * @brief Evaluate the availability for a specific src-dst pair and topology file
+     * Better version of evaluateAvailability with direct min_cutsets and prob_array as input from python
+     * @param min_cutsets 
+     * @param prob_array 
+     * @param src 
+     * @param dst 
+     * @return the availability in double
+     */
+    double evaluateAvailability_v2(const std::vector<std::vector<int>>& min_cutsets, const ProbabilityArray& prob_array, const int &src, int dst);
+
+    /**
+     * @brief Evaluate the availability for all src-dst pairs in the topology file
+     * 
+     * @param file_name 
+     * @return a map of src-dst pair and the availability 
+     */
     std::map<std::pair<int, int>, double> evaluateAvailabilityTopology(const std::string file_name);
 }
