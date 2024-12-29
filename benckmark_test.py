@@ -20,148 +20,169 @@ def binding_cpp_files():
         print("Binding the CPP files completed")
 
 
-def run_test(topology_name):
-    print("===============Running tests for " + topology_name + "===============")
+def run_test():
+    topologies = [folder for folder in os.listdir('topologies') if
+                             os.path.isdir(os.path.join('topologies', folder))]
     
-    # Measure the time taken
-    time_start = time.time()
+    for topology in topologies:
+        print("===============Running tests for " + topology + "===============")
+        
+        # Measure the time taken
+        time_start = time.time()
 
-    # Load the topology
-    print("Loading topology: " + topology_name)
-    G, _, _ = read_graph('topologies/' + topology_name, topology_name)
+        # Load the topology
+        print("Loading topology: " + topology)
+        G, _, _ = read_graph('topologies/' + topology, topology)
 
-    # Load the 0.9, 0.99, 0.999 Availability from PYRBD       
-    print("Loading 0.9, 0.99, 0.999 Availability results from PYRBD")
-    avail_path = os.path.join('topologies', topology_name, topology_name + '_availability.xlsx')
+        # Load the 0.9, 0.99, 0.999 Availability from PYRBD       
+        print("Loading 0.9, 0.99, 0.999 Availability results from PYRBD")
+        avail_path = os.path.join('topologies', topology, topology + '_availability.xlsx')
 
-    # Load the availability results and keep
-    avail_df = pd.read_excel(avail_path, dtype={'source': int, 'target': int, 
-                                                '0.9 Availability': float, 
-                                                '0.99 Availability': float, 
-                                                '0.999 Availability': float})
+        # Load the availability results and keep
+        avail_df = pd.read_excel(avail_path, dtype={'source': int, 'target': int, 
+                                                    '0.9 Availability': float, 
+                                                    '0.99 Availability': float, 
+                                                    '0.999 Availability': float})
+        
+        # Set the precision
+        precision = 9
+        print(f"Setting the comparsion precision to {precision}")
+
+        # Get all the node pairs
+        node_pairs = list(combinations(list(G.nodes), 2))
+
+        # Create the availability dictionaries
+        A_dic_09 = {i:0.9 for i in range(G.number_of_nodes())}
+        A_dic_099 = {i:0.99 for i in range(G.number_of_nodes())}
+        A_dic_0999 = {i:0.999 for i in range(G.number_of_nodes())}
+
+        # Prepare result list for CSV output
+        result_data = []
+
+        # Evaluate the availability with CPP
+        print("Testing the evaluating of the availability with CPP")
+        for src, dst in node_pairs:
+            avail_09 = round(calculate_availability_cpp(G, src, dst, A_dic_09), precision)
+            avail_099 = round(calculate_availability_cpp(G, src, dst, A_dic_099), precision)
+            avail_0999 = round(calculate_availability_cpp(G, src, dst, A_dic_0999), precision)
+
+            # Get the availability from the excel file
+            excel_09 = round(avail_df.loc[(avail_df['source'] == src+1) & (avail_df['target'] == dst+1), '0.9 Availability'].values[0], precision)
+            excel_099 = round(avail_df.loc[(avail_df['source'] == src+1) & (avail_df['target'] == dst+1), '0.99 Availability'].values[0], precision)
+            excel_0999 = round(avail_df.loc[(avail_df['source'] == src+1) & (avail_df['target'] == dst+1), '0.999 Availability'].values[0], precision)
+
+            if not np.isclose(avail_09, excel_09, atol=10**-precision):
+                raise Exception(f"Error in 0.9 availability for {src} -> {dst}. CPP: {avail_09}, Excel: {excel_09}")
+            if not np.isclose(avail_099, excel_099, atol=10**-precision):
+                raise Exception(f"Error in 0.99 availability for {src} -> {dst}. CPP: {avail_099}, Excel: {excel_099}")
+            if not np.isclose(avail_0999, excel_0999, atol=10**-precision):
+                raise Exception(f"Error in 0.999 availability for {src} -> {dst}. CPP: {avail_0999}, Excel: {excel_0999}")
+
+            result_data.append({
+                'source': src + 1,
+                'target': dst + 1,
+                '0.9 Availability': avail_09,
+                '0.99 Availability': avail_099,
+                '0.999 Availability': avail_0999
+            })
+
+        print(topology + " tests passed")   
+
+        time_end = time.time()
+        time_taken = round(time_end - time_start, precision)
+        print("Time taken: " + str(time_taken) + " seconds")
+
+        # Save the results to a CSV file
+        result_df = pd.DataFrame(result_data)
+        result_df.to_csv(f"results/{topology}_availability_cpp.csv", index=False)
+
+def run_benchmark():
+    # save the simulation times for each topology
+    simulation_times_per_topology = {}
+
+    folders_in_topologies = [folder for folder in os.listdir('topologies') if
+                             os.path.isdir(os.path.join('topologies', folder))]
     
-    # Set the precision
-    precision = 9
-    print(f"Setting the comparsion precision to {precision}")
+    for topology in folders_in_topologies:
+        print("===============Running benchmark for " + topology + "===============")
 
-    # Get all the node pairs
-    node_pairs = list(combinations(list(G.nodes), 2))
+        # Load the topology
+        print("Loading topology: " + topology)
+        G, _, _ = read_graph('topologies/' + topology, topology)
 
-    # Create the availability dictionaries
-    A_dic_09 = {i:0.9 for i in range(G.number_of_nodes())}
-    A_dic_099 = {i:0.99 for i in range(G.number_of_nodes())}
-    A_dic_0999 = {i:0.999 for i in range(G.number_of_nodes())}
+        # Set the precision
+        precision = 9
+        print(f"Setting the comparsion precision to {precision}")
+        
+        # Get all the node pairs
+        node_pairs = list(combinations(list(G.nodes), 2))
 
-    # Prepare result list for CSV output
-    result_data = []
+        # Create the availability dictionaries
+        A_dic_09 = {i:0.9 for i in range(G.number_of_nodes())}
 
-    # Evaluate the availability with CPP
-    print("Testing the evaluating of the availability with CPP")
-    for src, dst in node_pairs:
-        avail_09 = round(calculate_availability_cpp(G, src, dst, A_dic_09), precision)
-        avail_099 = round(calculate_availability_cpp(G, src, dst, A_dic_099), precision)
-        avail_0999 = round(calculate_availability_cpp(G, src, dst, A_dic_0999), precision)
+        result_data = []
+        time_total_cpp = 0
+        time_total_py = 0
+        # Evaluate the availability with CPP
+        for src, dst in node_pairs:
+            # Measure the CPP time taken
+            time_start_cpp = time.time()
+            calculate_availability_cpp(G, src, dst, A_dic_09)
+            time_end_cpp = time.time()
 
-        # Get the availability from the excel file
-        excel_09 = round(avail_df.loc[(avail_df['source'] == src+1) & (avail_df['target'] == dst+1), '0.9 Availability'].values[0], precision)
-        excel_099 = round(avail_df.loc[(avail_df['source'] == src+1) & (avail_df['target'] == dst+1), '0.99 Availability'].values[0], precision)
-        excel_0999 = round(avail_df.loc[(avail_df['source'] == src+1) & (avail_df['target'] == dst+1), '0.999 Availability'].values[0], precision)
+            # Measure the Python time taken
+            time_start_py = time.time()
+            calculate_availability(G, src, dst, A_dic_09)
+            time_end_py = time.time()
 
-        if not np.isclose(avail_09, excel_09, atol=10**-precision):
-            raise Exception(f"Error in 0.9 availability for {src} -> {dst}. CPP: {avail_09}, Excel: {excel_09}")
-        if not np.isclose(avail_099, excel_099, atol=10**-precision):
-            raise Exception(f"Error in 0.99 availability for {src} -> {dst}. CPP: {avail_099}, Excel: {excel_099}")
-        if not np.isclose(avail_0999, excel_0999, atol=10**-precision):
-            raise Exception(f"Error in 0.999 availability for {src} -> {dst}. CPP: {avail_0999}, Excel: {excel_0999}")
+            time_cpp = round(time_end_cpp - time_start_cpp, precision)
+            time_py = round(time_end_py - time_start_py, precision)
+            
+            result_data.append({
+                'source': src + 1,
+                'target': dst + 1,
+                'CPP Time': time_cpp,
+                'Python Time': time_py
+            })
+
+            time_total_cpp += time_cpp
+            time_total_py += time_py
+        
+
+        time_total_cpp = round(time_total_cpp, precision)
+        time_total_py = round(time_total_py, precision)
 
         result_data.append({
-            'source': src + 1,
-            'target': dst + 1,
-            '0.9 Availability': avail_09,
-            '0.99 Availability': avail_099,
-            '0.999 Availability': avail_0999
+            'source': 'All',
+            'target': 'All',
+            'CPP Time': time_total_cpp,
+            'Python Time': time_total_py
         })
 
-    print(topology_name + " tests passed")   
+        # Save the results to a CSV file for each topology
+        result_df = pd.DataFrame(result_data)
+        result_df.to_csv(f"results/{topology}_benchmark.csv", index=False)
 
-    time_end = time.time()
-    time_taken = round(time_end - time_start, 2)
-    print("Time taken: " + str(time_taken) + " seconds")
+        # Format the time taken
+        formatted_time_cpp = f"{time_total_cpp:010.2f}"
+        formatted_time_py = f"{time_total_py:010.2f}"
 
-    # Save the results to a CSV file
-    result_df = pd.DataFrame(result_data)
-    result_df.to_csv(f"results/{topology_name}_availability_cpp.csv", index=False)
+        # Save the simulation times for a overall comparison
+        simulation_times_per_topology[topology] = (formatted_time_cpp, formatted_time_py)
 
-def run_benchmark(topology_name):
-    print("===============Running benchmark for " + topology_name + "===============")
-
-    # Load the topology
-    print("Loading topology: " + topology_name)
-    G, _, _ = read_graph('topologies/' + topology_name, topology_name)
-
-    # Set the precision
-    precision = 9
-    print(f"Setting the comparsion precision to {precision}")
+        print(f"{topology} benchmark completed:")    
+        print(f"Total time taken for CPP: {time_total_cpp} seconds")
+        print(f"Total time taken for Python: {time_total_py} seconds")
+        print(f"Total time saved by CPP: {round(time_total_py - time_total_cpp, precision)} seconds")
     
-    # Get all the node pairs
-    node_pairs = list(combinations(list(G.nodes), 2))
+    # Save the simulation times for each topology to a CSV file
+    simulation_times_df = pd.DataFrame.from_dict(simulation_times_per_topology, orient='index', columns=['Simulation Time CPP (Second)', 'Simulation Time Python (Second)'])
+    simulation_times_df.index.name = 'Topology'
 
-    # Create the availability dictionaries
-    A_dic_09 = {i:0.9 for i in range(G.number_of_nodes())}
-
-    result_data = []
-    time_total_cpp = 0
-    time_total_py = 0
-    # Evaluate the availability with CPP
-    for src, dst in node_pairs:
-        # Measure the CPP time taken
-        time_start_cpp = time.time()
-        calculate_availability_cpp(G, src, dst, A_dic_09)
-        time_end_cpp = time.time()
-
-        # Measure the Python time taken
-        time_start_py = time.time()
-        calculate_availability(G, src, dst, A_dic_09)
-        time_end_py = time.time()
-
-        time_cpp = round(time_end_cpp - time_start_cpp, precision)
-        time_py = round(time_end_py - time_start_py, precision)
-        time_total_cpp += time_cpp
-        time_total_py += time_py
-
-        result_data.append({
-            'source': src + 1,
-            'target': dst + 1,
-            'CPP Time': time_cpp,
-            'Python Time': time_py
-        })
-    
-    result_data.append({
-        'source': 'All',
-        'target': 'All',
-        'CPP Time': time_total_cpp,
-        'Python Time': time_total_py
-    })
-
-    # Save the results to a CSV file
-    result_df = pd.DataFrame(result_data)
-    result_df.to_csv(f"results/{topology_name}_benchmark.csv", index=False)
-
-    print(f"{topology_name} benchmark completed:")    
-    print(f"Total time taken for CPP: {time_total_cpp} seconds")
-    print(f"Total time taken for Python: {time_total_py} seconds")
-    print(f"Total time saved by CPP: {round(time_total_py - time_total_cpp, precision)} seconds")
+    # Save the DataFrame to a CSV file
+    simulation_times_df.to_csv("results/first_5_simulation_times_cpp.csv", index=True)
 
 if __name__ == "__main__":
-    # binding_cpp_files()
-    run_test('Abilene')
-    run_test('Germany_17')
-    run_test('HiberniaUk')
-    run_test('polska')
-    run_test('dfn-bwin')
-    run_benchmark('Abilene')
-    run_benchmark('Germany_17')
-    run_benchmark('HiberniaUk')
-    run_benchmark('polska')
-    run_benchmark('dfn-bwin')
+    run_test()
+    run_benchmark()
     print("All tests and benchmarks completed")
