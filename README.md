@@ -32,7 +32,6 @@ cd ..
   networkx
   pybind11
   pandas
-  openyxl
 - change the CmakeLists.txt:
 
 ```
@@ -47,4 +46,7 @@ pip show pybind11
 mkdir build # if not exist
 cd build
 cmake --build .
+make
 ```
+
+- Run the Python benchmark_test.py file

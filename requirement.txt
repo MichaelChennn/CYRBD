@@ -1,7 +1,4 @@
-vcpkg install igraph (not needed from 14.12.2024
-
-for python:
 networkx
 pybind11
 pandas
-openyxl
+openpyxl
