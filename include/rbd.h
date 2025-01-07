@@ -164,7 +164,15 @@ namespace rbd
      * @param dst 
      * @return the availability in double
      */
-    double evaluateAvailability(const std::string file_name, const int &src, const int &dst);
+    // double evaluateAvailability_old(const std::string file_name, const int &src, const int &dst);
+
+    /**
+     * @brief Evaluate the availability for all src-dst pairs in the topology file
+     * 
+     * @param file_name 
+     * @return a map of src-dst pair and the availability 
+     */
+    // std::map<std::pair<int, int>, double> evaluateAvailabilityTopology_old(const std::string file_name);
 
     /**
      * @brief Evaluate the availability for a specific src-dst pair and topology file
@@ -175,13 +183,7 @@ namespace rbd
      * @param dst 
      * @return the availability in double
      */
-    double evaluateAvailability_v2(const std::vector<std::vector<int>>& min_cutsets, const ProbabilityArray& prob_array, const int &src, int dst);
+    double evaluateAvailability(const std::vector<std::vector<int>>& min_cutsets, const ProbabilityArray& prob_array, const int &src, int dst);
 
-    /**
-     * @brief Evaluate the availability for all src-dst pairs in the topology file
-     * 
-     * @param file_name 
-     * @return a map of src-dst pair and the availability 
-     */
-    std::map<std::pair<int, int>, double> evaluateAvailabilityTopology(const std::string file_name);
+
 }

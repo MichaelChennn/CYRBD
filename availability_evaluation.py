@@ -427,7 +427,7 @@ def calculate_availability(G, source, target, A_dic):
 
 
 
-def evaluate_availability_multiprocessing(G, A_dic):
+def calculate_availability_multiprocessing(G, A_dic):
     num_cpus = multiprocessing.cpu_count()
     pool = multiprocessing.Pool(processes=num_cpus)
 
@@ -441,86 +441,85 @@ def evaluate_availability_multiprocessing(G, A_dic):
     return results
 
 # =================================cpp implementation=================================
-def calculate_all_mincutset(G, A_dic):
-    # TODO: change the json stored probaility list to a dictionary
-    data = {
-        "probability": list(A_dic.values())
-    }
-    minimal_cutsets = []
-    for src in G.nodes():
-        for dst in G.nodes():
-            if src < dst:
-                cutsets = minimalcuts(G, src, dst)
-                if cutsets:
-                    minimal_cutsets.append({
-                        "src-dst": [src, dst],
-                        "min-cutsets": cutsets
-                    })
-    data["minimal_cutsets"] = minimal_cutsets
+# def calculate_all_mincutset(G, A_dic):
+#     # TODO: change the json stored probaility list to a dictionary
+#     data = {
+#         "probability": list(A_dic.values())
+#     }
+#     minimal_cutsets = []
+#     for src in G.nodes():
+#         for dst in G.nodes():
+#             if src < dst:
+#                 cutsets = minimalcuts(G, src, dst)
+#                 if cutsets:
+#                     minimal_cutsets.append({
+#                         "src-dst": [src, dst],
+#                         "min-cutsets": cutsets
+#                     })
+#     data["minimal_cutsets"] = minimal_cutsets
 
-    top = G.graph['name']
-    file_path = f"topologies/{top}/{top}.json"
-    with open(file_path, 'w') as file:
-        json.dump(data, file, indent=1, separators=(',', ': '))
+#     top = G.graph['name']
+#     file_path = f"topologies/{top}/{top}.json"
+#     with open(file_path, 'w') as file:
+#         json.dump(data, file, indent=1, separators=(',', ': '))
 
-def calculate_single_mincutset(G, source, target, A_dic):
-    # TODO: change the json stored probaility list to a dictionary
-    data = {
-        "probability": list(A_dic.values())
-    }
-    minimal_cutsets = []
-    cutsets = minimalcuts(G, source, target)
-    minimal_cutsets.append({
-                    "src-dst": [source, target],
-                    "min-cutsets": cutsets
-                    })
-    data["minimal_cutsets"] = minimal_cutsets
+# def calculate_single_mincutset(G, source, target, A_dic):
+#     # TODO: change the json stored probaility list to a dictionary
+#     data = {
+#         "probability": list(A_dic.values())
+#     }
+#     minimal_cutsets = []
+#     cutsets = minimalcuts(G, source, target)
+#     minimal_cutsets.append({
+#                     "src-dst": [source, target],
+#                     "min-cutsets": cutsets
+#                     })
+#     data["minimal_cutsets"] = minimal_cutsets
 
-    top = G.graph['name']
-    file_path = f"topologies/{top}/{top}.json"
-    with open(file_path, 'w') as file:
-        json.dump(data, file, indent=1, separators=(',', ': '))
+#     top = G.graph['name']
+#     file_path = f"topologies/{top}/{top}.json"
+#     with open(file_path, 'w') as file:
+#         json.dump(data, file, indent=1, separators=(',', ': '))
 
+# def calculate_availability_cpp(G, source, target, A_dic):
+    
+#     calculate_single_mincutset(G, source, target, A_dic)
+#     top = G.graph['name']
+#     file_path = f"topologies/{top}/{top}.json"
+#     try:
+#         result = build.rbd_bindings.evaluateAvailability(file_path, source, target)
+#         return result
+#     except Exception as e:
+#         print(e)
+#         return None, None
+    
 def calculate_availability_cpp(G, source, target, A_dic):
-    
-    calculate_single_mincutset(G, source, target, A_dic)
-    top = G.graph['name']
-    file_path = f"topologies/{top}/{top}.json"
-    try:
-        result = build.rbd_bindings.evaluateAvailability(file_path, source, target)
-        return result
-    except Exception as e:
-        print(e)
-        return None, None
-    
-def calculate_availability_cpp_v2(G, source, target, A_dic):
     mincutsets = minimalcuts(G, source, target)
     probrabilities = list(A_dic.values())
     try:
-        result = build.rbd_bindings.evaluateAvailability_v2(mincutsets, probrabilities, source, target)
+        result = build.rbd_bindings.evaluateAvailability(mincutsets, probrabilities, source, target)
         return result
     except Exception as e:
         print(e)
         return None, None
 
-def calculate_availability_mutiprocessing_cpp(G, source, target):
-    top = G.graph['name']
-    file_path = f"topologies/{top}/{top}.json"
-    try:
-        result = build.rbd_bindings.evaluateAvailability(file_path, source, target)
-        return result
-    except Exception as e:
-        print(e)
-        return None, None
+# def calculate_availability_mutiprocessing_cpp(G, source, target):
+#     top = G.graph['name']
+#     file_path = f"topologies/{top}/{top}.json"
+#     try:
+#         result = build.rbd_bindings.evaluateAvailability(file_path, source, target)
+#         return result
+#     except Exception as e:
+#         print(e)
+#         return None, None
 
-def evaluate_availability_multiprocessing_cpp(G, A_dic):
+def calculate_availability_multiprocessing_cpp(G, A_dic):
     num_cpus = multiprocessing.cpu_count()
     pool = multiprocessing.Pool(processes=num_cpus)
 
     node_pairs = list(combinations(G.nodes(), 2))
 
-    calculate_all_mincutset(G, A_dic)
-    results = pool.starmap(calculate_availability_mutiprocessing_cpp, [(G, pair[0], pair[1]) for pair in node_pairs])
+    results = pool.starmap(calculate_availability_cpp, [(G, pair[0], pair[1], A_dic) for pair in node_pairs])
 
     pool.close()
     pool.join()
@@ -529,7 +528,14 @@ def evaluate_availability_multiprocessing_cpp(G, A_dic):
     
 if __name__ == '__main__':
     # Load the graph
-    G, pos, lable = read_graph('topologies/Abilene', 'Abilene')
+    G, _, _ = read_graph('topologies/Nobel_EU', 'Nobel_EU')
     A_dic_09 = {i:0.9 for i in range(G.number_of_nodes())}
-    result = calculate_availability_cpp_v2(G, 0, 1, A_dic_09)
-    print(result)
+    pair = list(combinations(G.nodes(), 2))
+    time_total = 0
+    for src, dst in pair:
+        start_time = time.time()
+        result = calculate_availability_cpp(G, src, dst, A_dic_09)
+        end_time = time.time()
+        print (f"src: {src}, dst: {dst}, result: {result}, time: {end_time - start_time}")
+        time_total += end_time - start_time
+    print(f"total time: {time_total}")

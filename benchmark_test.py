@@ -21,8 +21,11 @@ def binding_cpp_files():
 
 
 def run_test():
-    topologies = [folder for folder in os.listdir('topologies') if
-                             os.path.isdir(os.path.join('topologies', folder))]
+    # topologies = [folder for folder in os.listdir('topologies') if
+    #                          os.path.isdir(os.path.join('topologies', folder))]
+    
+    topologies = ["Abilene", "dfn-bwin", "Germany_17", "HiberniaUk", "polska"]
+
     
     for topology in topologies:
         print("===============Running tests for " + topology + "===============")
@@ -96,103 +99,18 @@ def run_test():
         result_df = pd.DataFrame(result_data)
         result_df.to_csv(f"results/{topology}_availability_cpp.csv", index=False)
 
-def run_benchmark_v2():
-    # save the simulation times for each topology
-    simulation_times_per_topology = {}
-
-    folders_in_topologies = [folder for folder in os.listdir('topologies') if
-                             os.path.isdir(os.path.join('topologies', folder))]
-    
-    for topology in folders_in_topologies:
-        print("===============Running benchmark_v2 for " + topology + "===============")
-
-        # Load the topology
-        print("Loading topology: " + topology)
-        G, _, _ = read_graph('topologies/' + topology, topology)
-
-        # Set the precision
-        precision = 9
-        print(f"Setting the comparsion precision to {precision}")
-        
-        # Get all the node pairs
-        node_pairs = list(combinations(list(G.nodes), 2))
-
-        # Create the availability dictionaries
-        A_dic_09 = {i:0.9 for i in range(G.number_of_nodes())}
-
-        result_data = []
-        time_total_cpp = 0
-        time_total_py = 0
-        # Evaluate the availability with CPP
-        for src, dst in node_pairs:
-            # Measure the CPP time taken
-            time_start_cpp = time.time()
-            calculate_availability_cpp_v2(G, src, dst, A_dic_09)
-            time_end_cpp = time.time()
-
-            # Measure the Python time taken
-            time_start_py = time.time()
-            calculate_availability(G, src, dst, A_dic_09)
-            time_end_py = time.time()
-
-            time_cpp = round(time_end_cpp - time_start_cpp, precision)
-            time_py = round(time_end_py - time_start_py, precision)
-
-            result_data.append({
-                'source': src + 1,
-                'target': dst + 1,
-                'CPP Time': time_cpp,
-                'Python Time': time_py
-            })
-
-            time_total_cpp += time_cpp
-            time_total_py += time_py
-        
-
-        time_total_cpp = round(time_total_cpp, precision)
-        time_total_py = round(time_total_py, precision)
-    
-        
-
-        result_data.append({
-            'source': 'All',
-            'target': 'All',
-            'CPP Time': time_total_cpp,
-            'Python Time': time_total_py
-        })
-
-        # Save the results to a CSV file for each topology
-        result_df = pd.DataFrame(result_data)
-        result_df.to_csv(f"results/{topology}_benchmark_v2.csv", float_format='%.9f', index=False)
-
-        # Format the time taken
-        formatted_time_cpp = f"{time_total_cpp:.{precision}f}"[:10]
-        formatted_time_py = f"{time_total_py:.{precision}f}"[:10]
-
-        # Save the simulation times for a overall comparison
-        simulation_times_per_topology[topology] = (formatted_time_cpp, formatted_time_py)
-
-        print(f"{topology} benchmark completed:")
-        print(f"Total time taken for CPP: {time_total_cpp} seconds")
-        print(f"Total time taken for Python: {time_total_py} seconds")
-        print(f"Total time saved by CPP: {round(time_total_py - time_total_cpp, precision)} seconds")
-
-    # Save the simulation times for each topology to a CSV file
-    simulation_times_df = pd.DataFrame.from_dict(simulation_times_per_topology, orient='index', columns=['Simulation Time CPP (Second)', 'Simulation Time Python (Second)'])
-    simulation_times_df.index.name = 'Topology'
-
-    # Save the DataFrame to a CSV file
-    simulation_times_df.to_csv("results/first_5_simulation_times_cpp_v2.csv", index=True)
     
 
 def run_benchmark():
     # save the simulation times for each topology
     simulation_times_per_topology = {}
 
-    folders_in_topologies = [folder for folder in os.listdir('topologies') if
-                             os.path.isdir(os.path.join('topologies', folder))]
+    # topologies = [folder for folder in os.listdir('topologies') if
+    #                          os.path.isdir(os.path.join('topologies', folder))]
     
-    for topology in folders_in_topologies:
+    topologies = ["Abilene", "dfn-bwin", "Germany_17", "HiberniaUk", "polska"]
+    
+    for topology in topologies:
         print("===============Running benchmark for " + topology + "===============")
 
         # Load the topology
@@ -277,10 +195,12 @@ def run_benchmark_multiprocessing():
     # save the simulation times for each topology
     simulation_times_per_topology = {}
 
-    folders_in_topologies = [folder for folder in os.listdir('topologies') if
-                             os.path.isdir(os.path.join('topologies', folder))]
+    # topologies = [folder for folder in os.listdir('topologies') if
+    #                          os.path.isdir(os.path.join('topologies', folder))]
     
-    for topology in folders_in_topologies:
+    topologies = ["Abilene", "dfn-bwin", "Germany_17", "HiberniaUk", "polska"]
+
+    for topology in topologies:
         print("===============Running benchmark multiprocessing for " + topology + "===============")
 
         # Load the topology
@@ -300,11 +220,11 @@ def run_benchmark_multiprocessing():
 
         # Evaluate the availability with CPP
         time_start_cpp = time.time()
-        evaluate_availability_multiprocessing_cpp(G, A_dic_09)
+        calculate_availability_multiprocessing_cpp(G, A_dic_09)
         time_end_cpp = time.time()
         # Evaluate the availability with Python 
         time_start_py = time.time()
-        evaluate_availability_multiprocessing(G, A_dic_09)
+        calculate_availability_multiprocessing(G, A_dic_09)
         time_end_py = time.time()
 
         time_cpp = round(time_end_cpp - time_start_cpp, precision)
@@ -333,9 +253,7 @@ def run_benchmark_multiprocessing():
 
 if __name__ == "__main__":
     # binding_cpp_files()
-    run_test()
-    # run_benchmark()
-    # print("All tests and benchmarks completed")
-    # run_benchmark()
-    run_benchmark_v2()
-    # run_benchmark_multiprocessing()
+    # run_test()
+    run_benchmark()
+    run_benchmark_multiprocessing()
+    print("All tests and benchmarks completed")

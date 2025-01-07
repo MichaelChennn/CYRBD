@@ -239,48 +239,48 @@ namespace rbd
         return avail_total;
     }
 
-    std::map<std::pair<int, int>, double> evaluateAvailabilityTopology(const std::string file_name)
-    {
+    // std::map<std::pair<int, int>, double> evaluateAvailabilityTopology_old(const std::string file_name)
+    // {
 
-        // read the minimal cut set and the probability array
-        std::map<std::pair<int,int>, std::vector<std::vector<int>>> mincutsets_map = readMinCutSet(file_name);
-        ProbabilityArray prob_array = readProbabilityArray(file_name);
+    //     // read the minimal cut set and the probability array
+    //     std::map<std::pair<int,int>, std::vector<std::vector<int>>> mincutsets_map = readMinCutSet(file_name);
+    //     ProbabilityArray prob_array = readProbabilityArray(file_name);
 
-        // save the result
-        std::map<std::pair<int, int>, double> result;
+    //     // save the result
+    //     std::map<std::pair<int, int>, double> result;
 
-        // evaluate the unavailability for each src-dst pair
-        for (const auto &mincutsets : mincutsets_map)
-        {
-            std::vector<std::vector<int>> prob_sets = minCutSetToProbaset(mincutsets.first.first, mincutsets.first.second, mincutsets.second);
+    //     // evaluate the unavailability for each src-dst pair
+    //     for (const auto &mincutsets : mincutsets_map)
+    //     {
+    //         std::vector<std::vector<int>> prob_sets = minCutSetToProbaset(mincutsets.first.first, mincutsets.first.second, mincutsets.second);
     
-            double availability= probasetToAvailability(mincutsets.first.first, mincutsets.first.second, prob_array, prob_sets);
+    //         double availability= probasetToAvailability(mincutsets.first.first, mincutsets.first.second, prob_array, prob_sets);
         
-            result[mincutsets.first] = availability;
-        }
-        return result;
-    }
+    //         result[mincutsets.first] = availability;
+    //     }
+    //     return result;
+    // }
 
-    double evaluateAvailability(const std::string file_name, const int &src, const int &dst) {
-        // read the minimal cut set and the probability array
-        std::map<std::pair<int,int>, std::vector<std::vector<int>>> mincutsets_map = readMinCutSet(file_name);
-        ProbabilityArray prob_array = readProbabilityArray(file_name);
-        // evaluate the unavailability for the given src-dst pair
-        try
-        {   
-            std::pair<int, int> src_dst = {src, dst};
-            std::vector<std::vector<int>> prob_sets = minCutSetToProbaset(src, dst, mincutsets_map[src_dst]);
-            double availability = probasetToAvailability(src, dst, prob_array, prob_sets);
-            return availability;
-        }
-        catch(const std::exception& e)
-        {
-            std::cerr << e.what() << '\n';
-        }
-        return 0.0;
-    }
+    // double evaluateAvailability_old(const std::string file_name, const int &src, const int &dst) {
+    //     // read the minimal cut set and the probability array
+    //     std::map<std::pair<int,int>, std::vector<std::vector<int>>> mincutsets_map = readMinCutSet(file_name);
+    //     ProbabilityArray prob_array = readProbabilityArray(file_name);
+    //     // evaluate the unavailability for the given src-dst pair
+    //     try
+    //     {   
+    //         std::pair<int, int> src_dst = {src, dst};
+    //         std::vector<std::vector<int>> prob_sets = minCutSetToProbaset(src, dst, mincutsets_map[src_dst]);
+    //         double availability = probasetToAvailability(src, dst, prob_array, prob_sets);
+    //         return availability;
+    //     }
+    //     catch(const std::exception& e)
+    //     {
+    //         std::cerr << e.what() << '\n';
+    //     }
+    //     return 0.0;
+    // }
 
-    double evaluateAvailability_v2(const std::vector<std::vector<int>>& min_cutsets, const ProbabilityArray& prob_array, const int &src, int dst) {
+    double evaluateAvailability(const std::vector<std::vector<int>>& min_cutsets, const ProbabilityArray& prob_array, const int &src, int dst) {
         // evaluate the unavailability for the given src-dst pair
         try
         {   

@@ -30,12 +30,12 @@ target_include_directories(rbd_library PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/includ
 target_link_libraries(rbd_library nlohmann_json::nlohmann_json)
 
 # set up unit test
-add_executable(unit_test src/unit_test.cpp)
-target_link_libraries(unit_test rbd_library)
+# add_executable(unit_test src/unit_test.cpp)
+# target_link_libraries(unit_test rbd_library)
 
 #set up benchmark
-add_executable(benchmark src/benchmark.cpp)
-target_link_libraries(benchmark rbd_library)
+# add_executable(benchmark src/benchmark.cpp)
+# target_link_libraries(benchmark rbd_library)
 
 # set up python module
 pybind11_add_module(rbd_bindings src/python_bindings.cpp)
