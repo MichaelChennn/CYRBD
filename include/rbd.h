@@ -88,7 +88,7 @@ namespace rbd
      * @param file_name 
      * @param result 
      */
-    void writeResultToFile(const std::string topology_name, const std::map<std::pair<int, int>, double> &result);
+    // void writeResultToFile(const std::string topology_name, const std::map<std::pair<int, int>, double> &result);
 
 
     /**
@@ -183,7 +183,8 @@ namespace rbd
      * @param dst 
      * @return the availability in double
      */
-    double evaluateAvailability(const std::vector<std::vector<int>>& min_cutsets, const ProbabilityArray& prob_array, const int &src, int dst);
+    double evaluateAvailability(const std::vector<std::vector<int>>& min_cutsets, const ProbabilityArray& prob_array, const int &src, const int &dst);
 
+    int lengthOfProbaset(const std::vector<std::vector<int>>& min_cutsets, const int &src, const int &dst);
 
 }

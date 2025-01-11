@@ -280,7 +280,7 @@ namespace rbd
     //     return 0.0;
     // }
 
-    double evaluateAvailability(const std::vector<std::vector<int>>& min_cutsets, const ProbabilityArray& prob_array, const int &src, int dst) {
+    double evaluateAvailability(const std::vector<std::vector<int>>& min_cutsets, const ProbabilityArray& prob_array, const int &src, const int &dst) {
         // evaluate the unavailability for the given src-dst pair
         try
         {   
@@ -295,33 +295,38 @@ namespace rbd
         return 0.0;
     }
 
-    void writeResultToFile(const std::string topologie_name, const std::map<std::pair<int, int>, double> &result) {
-        // create the result file
-        std::string file_path = "../results/" + topologie_name + "_availability_cpp.csv";
-        std::ofstream file(file_path);
-        if (!file.is_open()) {
-            std::cerr << "Error on saving result!" << std::endl;
-            exit(1);
-        }
+    // void writeResultToFile(const std::string topologie_name, const std::map<std::pair<int, int>, double> &result) {
+    //     // create the result file
+    //     std::string file_path = "../results/" + topologie_name + "_availability_cpp.csv";
+    //     std::ofstream file(file_path);
+    //     if (!file.is_open()) {
+    //         std::cerr << "Error on saving result!" << std::endl;
+    //         exit(1);
+    //     }
 
-        // write the result to the file
-        file << "source,target,availability" << std::endl;
-        for (const auto &pair : result) {
-            // remove the trailing zeros
-            std::ostringstream out;
-            out << std::fixed << std::setprecision(9) << pair.second;
-            std::string avilability = out.str();
-            avilability.erase(avilability.find_last_not_of('0') + 1, std::string::npos);
-            if (avilability.back() == '.') {
-                avilability.pop_back();
-            }
-            // write the result to the csv file
-            file << pair.first.first << "," << pair.first.second << ",";
-            file << std::fixed << std::setprecision(9) << avilability << std::endl;
-        }
+    //     // write the result to the file
+    //     file << "source,target,availability" << std::endl;
+    //     for (const auto &pair : result) {
+    //         // remove the trailing zeros
+    //         std::ostringstream out;
+    //         out << std::fixed << std::setprecision(9) << pair.second;
+    //         std::string avilability = out.str();
+    //         avilability.erase(avilability.find_last_not_of('0') + 1, std::string::npos);
+    //         if (avilability.back() == '.') {
+    //             avilability.pop_back();
+    //         }
+    //         // write the result to the csv file
+    //         file << pair.first.first << "," << pair.first.second << ",";
+    //         file << std::fixed << std::setprecision(9) << avilability << std::endl;
+    //     }
 
-        // close the file
-        file.close();
+    //     // close the file
+    //     file.close();
+    // }
+
+    int lengthOfProbaset(const std::vector<std::vector<int>>& min_cutsets, const int &src, const int &dst) {
+        std::vector<std::vector<int>> prob_sets = minCutSetToProbaset(src, dst, min_cutsets);
+        return prob_sets.size();
     }
 
 }
