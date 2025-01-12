@@ -18,26 +18,31 @@ namespace rbd
         std::vector<double> neg_array;
 
     public:
-        ProbabilityArray(const std::vector<double> &pos_arr) : pos_array(pos_arr), neg_array(pos_arr.size())
-        {
-            for (size_t i = 0; i < pos_arr.size(); ++i)
+        ProbabilityArray(const std::map<int,double> avail_arr): pos_array(avail_arr.size() + 1), neg_array(avail_arr.size() + 1)
+        {   
+            for (const auto &pair : avail_arr)
             {
-                neg_array[i] = 1.0 - pos_arr[i];
+                pos_array[pair.first] = pair.second;
+                neg_array[pair.first] = 1 - pair.second;
             }
         }
 
         double operator[](int i) const
         {
             // INT32_MIN represents -0
-            if (i == INT32_MIN)
-            {
-                return neg_array[0];
-            }
+            // if (i == INT32_MIN)
+            // {
+            //     return neg_array[0];
+            // }
             if (std::abs(i) > pos_array.size())
             {
                 throw std::out_of_range("Index out of range in ProbabilityArray");
             }
-            if (i >= 0)
+            if (i == 0)
+            {
+                std::cerr << "Error on handling node 0!" << std::endl;
+            }
+            if (i > 0)
             {
                 return pos_array[i];
             }

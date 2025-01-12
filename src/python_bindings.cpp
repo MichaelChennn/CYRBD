@@ -12,7 +12,7 @@ PYBIND11_MODULE(rbd_bindings, m) {
           
     m.def("evaluateAvailability", 
           [](const std::vector<std::vector<int>>& min_cutsets, 
-             const std::vector<double>& probabilities, 
+             const std::map<int,double>& probabilities, 
              int src, int dst) {
               ProbabilityArray prob_array(probabilities);
               return rbd::evaluateAvailability(min_cutsets, prob_array, src, dst);

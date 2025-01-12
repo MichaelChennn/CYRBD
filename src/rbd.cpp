@@ -6,69 +6,69 @@ using json = nlohmann::json;
 namespace rbd
 {
 
-    std::map<std::pair<int,int>, std::vector<std::vector<int>>> readMinCutSet(const std::string file_path)
-    {
-        // open the json file
-        std::ifstream
-            file(file_path);
+    // std::map<std::pair<int,int>, std::vector<std::vector<int>>> readMinCutSet(const std::string file_path)
+    // {
+    //     // open the json file
+    //     std::ifstream
+    //         file(file_path);
 
-        if (!file.is_open())
-        {
-            std::cerr << "Error on reading minimal cut set file!" << std::endl;
-            exit(1);
-        }
+    //     if (!file.is_open())
+    //     {
+    //         std::cerr << "Error on reading minimal cut set file!" << std::endl;
+    //         exit(1);
+    //     }
 
-        // create a vector of MinCutset
-        std::map<std::pair<int,int>, std::vector<std::vector<int>>> min_cut_sets;
+    //     // create a vector of MinCutset
+    //     std::map<std::pair<int,int>, std::vector<std::vector<int>>> min_cut_sets;
 
-        // read the json file
-        json j = json::parse(file);
-        if (j.contains("minimal_cutsets"))
-        {
-            for (auto &it :j["minimal_cutsets"]) {
-                std::pair<int, int> src_dst = {it["src-dst"][0], it["src-dst"][1]};
-                std::vector<std::vector<int>> tmp_min_cutsets;
-                for (auto &min_cutset : it["min-cutsets"]) {
-                    std::vector<int> cutsetVec(min_cutset.begin(), min_cutset.end());
-                    std::sort(cutsetVec.begin(), cutsetVec.end());
-                    tmp_min_cutsets.push_back(cutsetVec);
-                }
-                min_cut_sets[src_dst] = tmp_min_cutsets;
-            }
-        }
-        else
-        {
-            std::cerr << "Error on reading minimal cut sets from the json file!" << std::endl;
-        }
+    //     // read the json file
+    //     json j = json::parse(file);
+    //     if (j.contains("minimal_cutsets"))
+    //     {
+    //         for (auto &it :j["minimal_cutsets"]) {
+    //             std::pair<int, int> src_dst = {it["src-dst"][0], it["src-dst"][1]};
+    //             std::vector<std::vector<int>> tmp_min_cutsets;
+    //             for (auto &min_cutset : it["min-cutsets"]) {
+    //                 std::vector<int> cutsetVec(min_cutset.begin(), min_cutset.end());
+    //                 std::sort(cutsetVec.begin(), cutsetVec.end());
+    //                 tmp_min_cutsets.push_back(cutsetVec);
+    //             }
+    //             min_cut_sets[src_dst] = tmp_min_cutsets;
+    //         }
+    //     }
+    //     else
+    //     {
+    //         std::cerr << "Error on reading minimal cut sets from the json file!" << std::endl;
+    //     }
 
-        // close the file
-        file.close();
+    //     // close the file
+    //     file.close();
 
-        return min_cut_sets;
-    }
+    //     return min_cut_sets;
+    // }
 
-    ProbabilityArray readProbabilityArray(const std::string file_path)
-    {
-        // open the json file
-        std::ifstream file(file_path);
-        if (!file.is_open())
-        {
-            std::cerr << "Error on opening probabilty file" << std::endl;
-            exit(1);
-        }
+    // ProbabilityArray readProbabilityArray(const std::string file_path)
+    // {
+    //     // open the json file
+    //     std::ifstream file(file_path);
+    //     if (!file.is_open())
+    //     {
+    //         std::cerr << "Error on opening probabilty file" << std::endl;
+    //         exit(1);
+    //     }
 
-        // read the json file
-        json j = json::parse(file);
-        std::vector<double> pos_array = j["probability"].get<std::vector<double>>();
+    //     // read the json file
+    //     json j = json::parse(file);
+    //     std::vector<double> pos_array = j["probability"].get<std::vector<double>>();
 
-        // create the ProbabilityArray object
-        ProbabilityArray prob_array(pos_array);
+    //     // create the ProbabilityArray object
+    //     ProbabilityArray prob_array(pos_array);
 
-        // close the file
-        file.close();
+    //     // close the file
+    //     file.close();
 
-        return prob_array;
-    }
+    //     return prob_array;
+    // }
 
     std::vector<std::vector<int>> makeDisjointSet(std::vector<int> set1, std::vector<int> set2)
     {
@@ -79,17 +79,7 @@ namespace rbd
         {
             if (elem == 0)
             {
-                if (std::find(set2.begin(), set2.end(), INT32_MIN) != set2.end())
-                {
-                    return {set2};
-                }
-            }
-            else if (elem == INT32_MIN)
-            {
-                if (std::find(set2.begin(), set2.end(), 0) != set2.end())
-                {
-                    return {set2};
-                }
+                std::cerr << "Error on handling node 0!" << std::endl;
             }
             else if (std::find(set2.begin(), set2.end(), -elem) != set2.end())
             {
@@ -125,19 +115,9 @@ namespace rbd
             set2.push_back(RC[i]);
             // copy the set2 to make sure the original set2 is not changed
             std::vector<int> set2_copy = set2;
-            if (set2_copy.back() == 0)
-            {
-                set2_copy.back() = INT32_MIN;
-            }
-            else if (set2_copy.back() == INT32_MIN)
-            {
-                set2_copy.back() = 0;
-            }
-            else
-            {
-                set2_copy.back() = -set2_copy.back();
-            }
 
+            set2_copy.back() = -set2_copy.back();
+            
             // sort the set to be added
             std::sort(set2_copy.begin(), set2_copy.end());
 
@@ -176,18 +156,7 @@ namespace rbd
         {
             for (auto &elem : set)
             {
-                if (elem == INT32_MIN)
-                {
-                    elem = 0;
-                }
-                else if (elem == 0)
-                {
-                    elem = INT32_MIN;
-                }
-                else
-                {
-                    elem = -elem;
-                }
+                elem = -elem;
             }
         }
 

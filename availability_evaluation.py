@@ -18,6 +18,7 @@ from itertools import combinations, islice
 import numpy as np
 import build.rbd_bindings
 import multiprocessing
+import threading
 
 #===================================cutsets.py=================================
 
@@ -235,9 +236,6 @@ def read_graph(directory, top):
     pos = f[1]
     lable = f[2]
 
-    #Yaxuan's modification
-    G.graph['name'] = top
-
     return G, pos, lable
 
 
@@ -401,7 +399,6 @@ def calculate_availability(G, source, target, A_dic):
     # Relabel the nodes of G
     G = nx.relabel_nodes(G, relabel_mapping)
 
-
     # Find the new labels for source and target
     new_source = None
     new_target = None
@@ -410,8 +407,6 @@ def calculate_availability(G, source, target, A_dic):
             new_source = label
         elif node == target:
             new_target = label
-
-
 
     if isinstance(A_dic, dict):
 
@@ -426,7 +421,6 @@ def calculate_availability(G, source, target, A_dic):
     return result,combined_results
 
 
-
 def calculate_availability_multiprocessing(G, A_dic):
     num_cpus = multiprocessing.cpu_count()
     pool = multiprocessing.Pool(processes=num_cpus)
@@ -437,82 +431,75 @@ def calculate_availability_multiprocessing(G, A_dic):
 
     pool.close()
     pool.join()
+    
+    result_list, combined_results = zip(*results)
+    
+    result_dict = {}
+    for i in range(len(node_pairs)):
+        result_dict[node_pairs[i]] = result_list[i][0][2]
+    
+    return result_dict
 
-    return results
+
+def calculate_availability_multithreading(G, A_dic):
+    
+    def process_pair(pair, result_dict):
+        source_node, target_node = pair
+        result, combined_results = calculate_availability(G, source_node, target_node, A_dic)
+        result_dict[pair] = result[0][2]
+    
+    thread_results = {}
+    
+    threads = []
+    for pair in list(combinations(G.nodes(), 2)):
+        thread_results[pair] = None # Initialize result placeholder
+        thread = threading.Thread(target=process_pair, args=(pair, thread_results))
+        threads.append(thread)
+        thread.start()
+        
+    for thread in threads:
+        thread.join()
+    
+    return thread_results
 
 # =================================cpp implementation=================================
-# def calculate_all_mincutset(G, A_dic):
-#     # TODO: change the json stored probaility list to a dictionary
-#     data = {
-#         "probability": list(A_dic.values())
-#     }
-#     minimal_cutsets = []
-#     for src in G.nodes():
-#         for dst in G.nodes():
-#             if src < dst:
-#                 cutsets = minimalcuts(G, src, dst)
-#                 if cutsets:
-#                     minimal_cutsets.append({
-#                         "src-dst": [src, dst],
-#                         "min-cutsets": cutsets
-#                     })
-#     data["minimal_cutsets"] = minimal_cutsets
 
-#     top = G.graph['name']
-#     file_path = f"topologies/{top}/{top}.json"
-#     with open(file_path, 'w') as file:
-#         json.dump(data, file, indent=1, separators=(',', ': '))
-
-# def calculate_single_mincutset(G, source, target, A_dic):
-#     # TODO: change the json stored probaility list to a dictionary
-#     data = {
-#         "probability": list(A_dic.values())
-#     }
-#     minimal_cutsets = []
-#     cutsets = minimalcuts(G, source, target)
-#     minimal_cutsets.append({
-#                     "src-dst": [source, target],
-#                     "min-cutsets": cutsets
-#                     })
-#     data["minimal_cutsets"] = minimal_cutsets
-
-#     top = G.graph['name']
-#     file_path = f"topologies/{top}/{top}.json"
-#     with open(file_path, 'w') as file:
-#         json.dump(data, file, indent=1, separators=(',', ': '))
-
-# def calculate_availability_cpp(G, source, target, A_dic):
-    
-#     calculate_single_mincutset(G, source, target, A_dic)
-#     top = G.graph['name']
-#     file_path = f"topologies/{top}/{top}.json"
-#     try:
-#         result = build.rbd_bindings.evaluateAvailability(file_path, source, target)
-#         return result
-#     except Exception as e:
-#         print(e)
-#         return None, None
-    
 def calculate_availability_cpp(G, source, target, A_dic):
-    mincutsets = minimalcuts(G, source, target)
-    probrabilities = list(A_dic.values())
+    # Get the nodes of G
+    nodes = list(G.nodes())
+
+    relabel_mapping = {nodes[i]: i + 1 for i in range(len(nodes))}
+
+    # Relabel the nodes of G
+    G = nx.relabel_nodes(G, relabel_mapping)
+    
+    # Find the new source and target
+    new_source = source + 1
+    new_target = target + 1
+    
+    # Relabel the nodes in A_dic
+    A_dic_relabeled = {relabel_mapping[node]: value for node, value in A_dic.items()}
+
+    # Calculate the min cut set
+    mincutsets = minimalcuts(G, new_source, new_target)
     try:
-        result = build.rbd_bindings.evaluateAvailability(mincutsets, probrabilities, source, target)
+        result = build.rbd_bindings.evaluateAvailability(mincutsets, A_dic_relabeled, new_source, new_target)
+        return (new_source, new_target, result)
+    except Exception as e:
+        print(e)
+        return None, None
+
+
+def calculate_length_of_boolean_expression_cpp(G, source, target):
+    mincutsets = minimalcuts(G, source, target)
+    try:
+        result = build.rbd_bindings.lengthOfProbaset(mincutsets, source, target)
         return result
     except Exception as e:
         print(e)
         return None, None
 
-# def calculate_availability_mutiprocessing_cpp(G, source, target):
-#     top = G.graph['name']
-#     file_path = f"topologies/{top}/{top}.json"
-#     try:
-#         result = build.rbd_bindings.evaluateAvailability(file_path, source, target)
-#         return result
-#     except Exception as e:
-#         print(e)
-#         return None, None
-
+    
 def calculate_availability_multiprocessing_cpp(G, A_dic):
     num_cpus = multiprocessing.cpu_count()
     pool = multiprocessing.Pool(processes=num_cpus)
@@ -525,17 +512,35 @@ def calculate_availability_multiprocessing_cpp(G, A_dic):
     pool.join()
 
     return results
+
+
+def calculate_availability_multithreading_cpp(G, A_dic):
+    
+    def process_pair(pair, result_dict):
+        source_node, target_node = pair
+        result = calculate_availability_cpp(G, source_node, target_node, A_dic)
+        result_dict[pair] = result[2]
+    
+    thread_results = {}
+    
+    threads = []
+    for pair in list(combinations(G.nodes(), 2)):
+        thread_results[pair] = None # Initialize result placeholder
+        thread = threading.Thread(target=process_pair, args=(pair, thread_results))
+        threads.append(thread)
+        thread.start()
+        
+    for thread in threads:
+        thread.join()
+    
+    return thread_results  
+
     
 if __name__ == '__main__':
     # Load the graph
-    G, _, _ = read_graph('topologies/Nobel_EU', 'Nobel_EU')
-    A_dic_09 = {i:0.9 for i in range(G.number_of_nodes())}
-    pair = list(combinations(G.nodes(), 2))
-    time_total = 0
-    for src, dst in pair:
-        start_time = time.time()
-        result = calculate_availability_cpp(G, src, dst, A_dic_09)
-        end_time = time.time()
-        print (f"src: {src}, dst: {dst}, result: {result}, time: {end_time - start_time}")
-        time_total += end_time - start_time
-    print(f"total time: {time_total}")
+    G, _, _ = read_graph('topologies/Abilene', 'Abilene')
+    print(G.nodes())
+    A_dict = {node: 0.99 for node in G.nodes()}
+    result = calculate_availability_multiprocessing_cpp(G, A_dict)
+    print(result)
+
