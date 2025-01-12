@@ -445,14 +445,14 @@ def calculate_availability_multithreading(G, A_dic):
     
     def process_pair(pair, result_dict):
         source_node, target_node = pair
-        result, combined_results = calculate_availability(G, source_node, target_node, A_dic)
-        result_dict[pair] = result[0][2]
+        result, _ = calculate_availability(G, source_node, target_node, A_dic)
+        result_dict[(result[0][0], result[0][1])] = result[0][2]
     
     thread_results = {}
     
     threads = []
     for pair in list(combinations(G.nodes(), 2)):
-        thread_results[pair] = None # Initialize result placeholder
+        thread_results[(pair[0] + 1, pair[1] + 1)] = None
         thread = threading.Thread(target=process_pair, args=(pair, thread_results))
         threads.append(thread)
         thread.start()
@@ -464,68 +464,104 @@ def calculate_availability_multithreading(G, A_dic):
 
 # =================================cpp implementation=================================
 
-def calculate_availability_cpp(G, source, target, A_dic):
+def relabel_graph_A_dict(G, A_dic):
     # Get the nodes of G
     nodes = list(G.nodes())
-
+    # Create a mapping of the nodes to new labels
     relabel_mapping = {nodes[i]: i + 1 for i in range(len(nodes))}
-
     # Relabel the nodes of G
     G = nx.relabel_nodes(G, relabel_mapping)
+    # Relabel the nodes in A_dict
+    A_dic = {relabel_mapping[node]: value for node, value in A_dic.items()}
+    return G, A_dic, relabel_mapping
+
+def calculate_availability_cpp(G, source, target, A_dic):
+    
+    # Relabel the nodes of G and A_dic
+    G, A_dic, relabel_mapping = relabel_graph_A_dict(G, A_dic)
     
     # Find the new source and target
-    new_source = source + 1
-    new_target = target + 1
+    source = relabel_mapping[source]
+    target = relabel_mapping[target]
     
-    # Relabel the nodes in A_dic
-    A_dic_relabeled = {relabel_mapping[node]: value for node, value in A_dic.items()}
-
-    # Calculate the min cut set
-    mincutsets = minimalcuts(G, new_source, new_target)
+    # Calculate the availability
     try:
-        result = build.rbd_bindings.evaluateAvailability(mincutsets, A_dic_relabeled, new_source, new_target)
-        return (new_source, new_target, result)
+        result = build.rbd_bindings.evaluateAvailability(minimalcuts(G, source, target), A_dic, source, target)
+        return (source, target, result)
     except Exception as e:
         print(e)
         return None, None
 
 
 def calculate_length_of_boolean_expression_cpp(G, source, target):
-    mincutsets = minimalcuts(G, source, target)
+    
+    # Relabel the nodes of G
+    G, A_dic, relabel_mapping = relabel_graph_A_dict(G, A_dic)
+    
+    # Find the new source and target
+    source = relabel_mapping[source]
+    target = relabel_mapping[target]
+    
     try:
-        result = build.rbd_bindings.lengthOfProbaset(mincutsets, source, target)
+        result = build.rbd_bindings.lengthOfProbaset(minimalcuts(G, source, target), source, target)
         return result
     except Exception as e:
         print(e)
         return None, None
+    
+def process_pair(pair, mincutset, A_dic):
+        source_node, target_node = pair
+        result = build.rbd_bindings.evaluateAvailability(mincutset, A_dic, source_node, target_node)
+        return (pair, result)
+    
+def process_batch(node_pairs, G, A_dic):
+    results = {}
+    for pair in node_pairs:
+        mincutset = minimalcuts(G, pair[0], pair[1])
+        result = build.rbd_bindings.evaluateAvailability(mincutset, A_dic, pair[0], pair[1])
+        results[pair] = result
+    return results
 
     
 def calculate_availability_multiprocessing_cpp(G, A_dic):
-    num_cpus = multiprocessing.cpu_count()
-    pool = multiprocessing.Pool(processes=num_cpus)
+    # Relabel the nodes of G and A_dic
+    G, A_dic, relabel_mapping = relabel_graph_A_dict(G, A_dic)
+            
+    # Create a pool of processes
+    pool = multiprocessing.Pool(processes=multiprocessing.cpu_count())
 
+    # Get all the pairs of nodes 
     node_pairs = list(combinations(G.nodes(), 2))
+    
+    # results = pool.starmap(process_pair, [(pair, minimalcuts(G, pair[0], pair[1]), A_dic) for pair in node_pairs])
 
-    results = pool.starmap(calculate_availability_cpp, [(G, pair[0], pair[1], A_dic) for pair in node_pairs])
-
+    batch_size = len(node_pairs) // multiprocessing.cpu_count()
+    batches = [node_pairs[i:i + batch_size] for i in range(0, len(node_pairs), batch_size)]
+    results = pool.starmap(process_batch, [(batch, G, A_dic) for batch in batches])
+    
     pool.close()
     pool.join()
+    
+    results_dict = {pair: result for pair, result in results}
 
-    return results
+    return results_dict
 
 
 def calculate_availability_multithreading_cpp(G, A_dic):
+    # Relabel the nodes of G and A_dic
+    G, A_dic, relabel_mapping = relabel_graph_A_dict(G, A_dic)
     
     def process_pair(pair, result_dict):
-        source_node, target_node = pair
-        result = calculate_availability_cpp(G, source_node, target_node, A_dic)
-        result_dict[pair] = result[2]
+        result = build.rbd_bindings.evaluateAvailability(minimalcuts(G, pair[0], pair[1]), A_dic, pair[0], pair[1])
+        result_dict[pair] = result
     
+    # Initialize the result dictionary
     thread_results = {}
-    
+    # Initialize the threads list
     threads = []
+    
     for pair in list(combinations(G.nodes(), 2)):
-        thread_results[pair] = None # Initialize result placeholder
+        thread_results[pair] = None
         thread = threading.Thread(target=process_pair, args=(pair, thread_results))
         threads.append(thread)
         thread.start()
@@ -538,9 +574,13 @@ def calculate_availability_multithreading_cpp(G, A_dic):
     
 if __name__ == '__main__':
     # Load the graph
-    G, _, _ = read_graph('topologies/Abilene', 'Abilene')
-    print(G.nodes())
-    A_dict = {node: 0.99 for node in G.nodes()}
-    result = calculate_availability_multiprocessing_cpp(G, A_dict)
+    G, _, _ = read_graph('topologies/Germany_17', 'Germany_17')
+    # Load the A_dic
+    A_dic = {i: 0.99 for i in G.nodes()}
+    # Calculate the availability
+    time_start = time.time()
+    result = calculate_availability_multiprocessing_cpp(G, A_dic)
+    time_end = time.time()
+    print("Time taken:", time_end - time_start)
     print(result)
-
+    

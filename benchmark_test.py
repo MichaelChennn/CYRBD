@@ -121,6 +121,12 @@ def run_benchmark():
         # Load the topology
         print("Loading topology: " + topology)
         G, _, _ = read_graph('topologies/' + topology, topology)
+        
+        # Create the availability dictionaries
+        A_dic = {i:0.9 for i in range(G.number_of_nodes())}
+        
+        # Relabel the nodes of G and A_dic
+        G, A_dic, relabel_mapping = relabel_graph_A_dict(G, A_dic)
 
         # Set the precision
         precision = 9
@@ -129,37 +135,45 @@ def run_benchmark():
         # Get all the node pairs
         node_pairs = list(combinations(list(G.nodes), 2))
 
-        # Create the availability dictionaries
-        A_dic_09 = {i:0.9 for i in range(G.number_of_nodes())}
-
         result_data = []
         time_total_cpp = 0
         time_total_py = 0
+        num_bool_expr_total = 0
+        
         # Evaluate the availability with CPP
         for src, dst in node_pairs:
+            
             # Measure the CPP time taken
             time_start_cpp = time.time()
-            calculate_availability_cpp(G, src, dst, A_dic_09)
+            mincutsets = minimalcuts(G, src, dst)
+            build.rbd_bindings.evaluateAvailability(mincutsets, A_dic, src, dst)
             time_end_cpp = time.time()
-
+            
             # Measure the Python time taken
             time_start_py = time.time()
-            calculate_availability(G, src, dst, A_dic_09)
+            process_topology(G, src, dst, A_dic)
             time_end_py = time.time()
 
+            # Round the time taken
             time_cpp = round(time_end_cpp - time_start_cpp, precision)
             time_py = round(time_end_py - time_start_py, precision)
 
+            # Get the number of boolean expressions
+            num_bool_expr = build.rbd_bindings.lengthOfProbaset(mincutsets, src, dst)
+            
             result_data.append({
                 'source': src + 1,
                 'target': dst + 1,
                 'CPP Time': time_cpp,
-                'Python Time': time_py
+                'Python Time': time_py,
+                'Number of Boolean Expressions': num_bool_expr
             })
 
             time_total_cpp += time_cpp
             time_total_py += time_py
-        
+            num_bool_expr_total += num_bool_expr
+            
+        # Round the total time taken
         time_total_cpp = round(time_total_cpp, precision)
         time_total_py = round(time_total_py, precision)
     
@@ -167,7 +181,8 @@ def run_benchmark():
             'source': 'All',
             'target': 'All',
             'CPP Time': time_total_cpp,
-            'Python Time': time_total_py
+            'Python Time': time_total_py,
+            'Number of Boolean Expressions': num_bool_expr_total
         })
 
         # Save the results to a CSV file for each topology
@@ -193,6 +208,7 @@ def run_benchmark():
     # Save the DataFrame to a CSV file
     simulation_times_df.to_csv("results/summary.csv", index=True)
 
+
 def run_benchmark_multiprocessing():
     # save the simulation times for each topology
     simulation_times_per_topology = {}
@@ -208,13 +224,13 @@ def run_benchmark_multiprocessing():
         # Load the topology
         print("Loading topology: " + topology)
         G, _, _ = read_graph('topologies/' + topology, topology)
-
+        
         # Set the precision
         precision = 9
         print(f"Setting the comparsion precision to {precision}")
         
         # Create the availability dictionaries
-        A_dic_09 = {i:0.9 for i in range(G.number_of_nodes())}
+        A_dic = {i:0.9 for i in range(G.number_of_nodes())}
 
         # Get the number of CPUs
         num_cpus = multiprocessing.cpu_count()
@@ -222,11 +238,11 @@ def run_benchmark_multiprocessing():
 
         # Evaluate the availability with CPP
         time_start_cpp = time.time()
-        calculate_availability_multiprocessing_cpp(G, A_dic_09)
+        calculate_availability_multiprocessing_cpp(G, A_dic)
         time_end_cpp = time.time()
         # Evaluate the availability with Python 
         time_start_py = time.time()
-        calculate_availability_multiprocessing(G, A_dic_09)
+        calculate_availability_multiprocessing(G, A_dic)
         time_end_py = time.time()
 
         time_cpp = round(time_end_cpp - time_start_cpp, precision)
@@ -273,19 +289,15 @@ def run_benchmark_multithreading():
         print(f"Setting the comparsion precision to {precision}")
         
         # Create the availability dictionaries
-        A_dic_09 = {i:0.9 for i in range(G.number_of_nodes())}
-
-        # Get the number of CPUs
-        num_cpus = multiprocessing.cpu_count()
-        print(f"Number of CPUs: {num_cpus}")
+        A_dic = {i:0.9 for i in range(G.number_of_nodes())}
 
         # Evaluate the availability with CPP
         time_start_cpp = time.time()
-        calculate_availability_multithreading_cpp(G, A_dic_09)
+        calculate_availability_multithreading_cpp(G, A_dic)
         time_end_cpp = time.time()
         # Evaluate the availability with Python 
         time_start_py = time.time()
-        calculate_availability_multithreading(G, A_dic_09)
+        calculate_availability_multithreading(G, A_dic)
         time_end_py = time.time()
 
         time_cpp = round(time_end_cpp - time_start_cpp, precision)
@@ -311,7 +323,7 @@ def run_benchmark_multithreading():
     simulation_times_df.to_csv("results/summary_multithreading_cpp.csv", index=True)
 
 
-def run_benmark_no_mincutset():
+def run_benmark_with_mincutset():
     # read the mincutset from the file
     topologies = ["Germany_50", "Nobel_EU"]
     
@@ -322,11 +334,20 @@ def run_benmark_no_mincutset():
         print("Loading topology: " + topology)
         G, _, _ = read_graph('topologies/' + topology, topology)
         
+        # Create the availability dictionaries
+        A_dic = {i:0.9 for i in range(G.number_of_nodes())}
+        
+        # Relabel the nodes of G and A_dic
+        G, A_dic, relabel_mapping = relabel_graph_A_dict(G, A_dic)
+        
         # Load the mincutsets
         print("Loading mincutsets: " + topology)
         df = pd.read_csv(f"topologies/{topology}/mincutsets_{topology}.csv")
         df['min-cutsets'] = df['min-cutsets'].apply(ast.literal_eval)
         mincutsets = df['min-cutsets'].values.tolist()
+        
+        # Relabel the mincutsets
+        mincutsets_relabeled = [[[i + 1 for i in num] for num in sublist] for sublist in mincutsets]
         
         # Set the precision
         precision = 9
@@ -335,18 +356,15 @@ def run_benmark_no_mincutset():
         # Get all the node pairs
         node_pairs = list(combinations(list(G.nodes), 2))
         
-        # Create the availability dictionaries
-        A_dic_09 = {i:0.9 for i in range(G.number_of_nodes())}
-        
         result_data = []
         time_total_cpp = 0
         
         # Evaluate the availability with CPP
-        for i in range(len(mincutsets)):
+        for i in range(len(mincutsets_relabeled)):
             # Measure the CPP time taken
             time_start_cpp = time.time()
             try:
-                build.rbd_bindings.evaluateAvailability(mincutsets[i], A_dic_09, node_pairs[i][0], node_pairs[i][1])
+                build.rbd_bindings.evaluateAvailability(mincutsets_relabeled[i], A_dic, node_pairs[i][0], node_pairs[i][1])
             except Exception as e:
                 print(e)
             time_end_cpp = time.time()
@@ -354,8 +372,8 @@ def run_benmark_no_mincutset():
             time_cpp = round(time_end_cpp - time_start_cpp, precision)
             
             result_data.append({
-                'source': node_pairs[i][0] + 1,
-                'target': node_pairs[i][1] + 1,
+                'source': node_pairs[i][0],
+                'target': node_pairs[i][1],
                 'CPP Time': time_cpp
             })
             
@@ -371,7 +389,7 @@ def run_benmark_no_mincutset():
         
         # Save the results to a CSV file for each topology
         result_df = pd.DataFrame(result_data)
-        result_df.to_csv(f"results/{topology}_benchmark_nono_mincutset.csv", float_format='%.9f', index=False)
+        result_df.to_csv(f"results/{topology}_benchmark_with_mincutset.csv", float_format='%.9f', index=False)
         
         # Format the time taken
         formatted_time_cpp = f"{time_total_cpp:.{precision}f}"[:10]
@@ -389,9 +407,9 @@ if __name__ == "__main__":
     # binding_cpp_files()
     # run_test()
     run_benchmark()
-    # run_benmark_no_mincutset()
-    # run_benchmark_multiprocessing()
-    # run_benchmark_multithreading()
+    run_benmark_with_mincutset()
+    run_benchmark_multiprocessing()
+    run_benchmark_multithreading()
     print("All tests and benchmarks completed")
     
         
