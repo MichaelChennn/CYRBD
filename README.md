@@ -29,11 +29,11 @@ cd ..
 ``` -->
 
 - Install the python libraries:
-  networkx
-  pybind11
-  pandas
-- change the CmakeLists.txt:
+```
+pip install -r requirements.txt
+```
 
+- change the CmakeLists.txt:
 ```
 set(pybind11_DIR "/home/{your_username}/.local/lib/{your_python_version}/site-packages/pybind11/share/cmake/pybind11")
 # this path can be seen with command:
@@ -47,6 +47,11 @@ mkdir build # if not exist
 cd build
 cmake --build .
 make
+cd ..
 ```
 
-- Run the Python benchmark_test.py file
+- Run the Python benchmark_test.py file (not in the build directory)
+
+```python
+python benchmark_test.py
+```

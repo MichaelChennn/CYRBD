@@ -194,7 +194,7 @@ def run_benchmark():
         formatted_time_py = f"{time_total_py:.{precision}f}"[:10]
 
         # Save the simulation times for a overall comparison
-        simulation_times_per_topology[topology] = (formatted_time_cpp, formatted_time_py)
+        simulation_times_per_topology[topology] = (formatted_time_cpp, formatted_time_py, num_bool_expr_total)
 
         print(f"{topology} benchmark completed:")    
         print(f"Total time taken for CPP: {time_total_cpp} seconds")
@@ -202,7 +202,7 @@ def run_benchmark():
         print(f"Total time saved by CPP: {round(time_total_py - time_total_cpp, precision)} seconds")
     
     # Save the simulation times for each topology to a CSV file
-    simulation_times_df = pd.DataFrame.from_dict(simulation_times_per_topology, orient='index', columns=['Simulation Time CPP (Second)', 'Simulation Time Python (Second)'])
+    simulation_times_df = pd.DataFrame.from_dict(simulation_times_per_topology, orient='index', columns=['Simulation Time CPP (Second)', 'Simulation Time Python (Second)', 'Number of Boolean Expressions'])
     simulation_times_df.index.name = 'Topology'
 
     # Save the DataFrame to a CSV file
@@ -358,6 +358,7 @@ def run_benmark_with_mincutset():
         
         result_data = []
         time_total_cpp = 0
+        num_bool_expr_total = 0
         
         # Evaluate the availability with CPP
         for i in range(len(mincutsets_relabeled)):
@@ -370,11 +371,15 @@ def run_benmark_with_mincutset():
             time_end_cpp = time.time()
             
             time_cpp = round(time_end_cpp - time_start_cpp, precision)
-            
+
+            num_bool_expr = build.rbd_bindings.lengthOfProbaset(mincutsets_relabeled[i], node_pairs[i][0], node_pairs[i][1])
+            num_bool_expr_total += num_bool_expr
+
             result_data.append({
                 'source': node_pairs[i][0],
                 'target': node_pairs[i][1],
-                'CPP Time': time_cpp
+                'CPP Time': time_cpp,
+                'Number of Boolean Expressions': num_bool_expr
             })
             
             time_total_cpp += time_cpp
@@ -384,7 +389,8 @@ def run_benmark_with_mincutset():
         result_data.append({
             'source': 'All',
             'target': 'All',
-            'CPP Time': time_total_cpp
+            'CPP Time': time_total_cpp,
+            'Number of Boolean Expressions': num_bool_expr_total
         })
         
         # Save the results to a CSV file for each topology
@@ -395,21 +401,22 @@ def run_benmark_with_mincutset():
         formatted_time_cpp = f"{time_total_cpp:.{precision}f}"[:10]
         
         # Save the simulation times in the summary 
-        with open("results/summary_complex.csv", "a") as f:
+        with open("results/summary.csv", "a") as f:
             writer = csv.writer(f)
-            writer.writerow([topology, formatted_time_cpp])
+            writer.writerow([topology, formatted_time_cpp, "NA", num_bool_expr_total])
         
         print(f"{topology} benchmark completed:")
         print(f"Total time taken for CPP: {time_total_cpp} seconds")
         
 
 if __name__ == "__main__":
-    # binding_cpp_files()
-    # run_test()
+    binding_cpp_files()
+    run_test()
     run_benchmark()
     run_benmark_with_mincutset()
     run_benchmark_multiprocessing()
     run_benchmark_multithreading()
+    run_benmark_with_mincutset()
     print("All tests and benchmarks completed")
     
         

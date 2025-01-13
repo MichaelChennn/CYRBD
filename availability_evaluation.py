@@ -533,11 +533,11 @@ def calculate_availability_multiprocessing_cpp(G, A_dic):
     # Get all the pairs of nodes 
     node_pairs = list(combinations(G.nodes(), 2))
     
-    # results = pool.starmap(process_pair, [(pair, minimalcuts(G, pair[0], pair[1]), A_dic) for pair in node_pairs])
+    results = pool.starmap(process_pair, [(pair, minimalcuts(G, pair[0], pair[1]), A_dic) for pair in node_pairs])
 
-    batch_size = len(node_pairs) // multiprocessing.cpu_count()
-    batches = [node_pairs[i:i + batch_size] for i in range(0, len(node_pairs), batch_size)]
-    results = pool.starmap(process_batch, [(batch, G, A_dic) for batch in batches])
+    # batch_size = len(node_pairs) // multiprocessing.cpu_count()
+    # batches = [node_pairs[i:i + batch_size] for i in range(0, len(node_pairs), batch_size)]
+    # results = pool.starmap(process_batch, [(batch, G, A_dic) for batch in batches])
     
     pool.close()
     pool.join()
