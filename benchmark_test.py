@@ -8,8 +8,6 @@ import ast
 import csv
 
 
-
-
 def binding_cpp_files():
     print("Binding the CPP files")
     if not os.path.exists("./build"):
@@ -108,8 +106,8 @@ def run_test():
 
     
 def run_benchmark():
-    # save the simulation times for each topology
-    simulation_times_per_topology = {}
+    # save the results for each topology
+    results_per_topology = {}
 
     # topologies = [folder for folder in os.listdir('topologies') if
     #                          os.path.isdir(os.path.join('topologies', folder))]
@@ -136,10 +134,14 @@ def run_benchmark():
         # Get all the node pairs
         node_pairs = list(combinations(list(G.nodes), 2))
 
+        # Save the results each node pair
         result_data = []
+        
+        # Save the results for whole topology
         time_total_cpp = 0
         time_total_py = 0
         num_bool_expr_total = 0
+        num_mincutsets_total = 0
         
         # Evaluate the availability with CPP
         for src, dst in node_pairs:
@@ -160,30 +162,37 @@ def run_benchmark():
             time_py = round(time_end_py - time_start_py, precision)
 
             # Get the number of boolean expressions
-            num_bool_expr = build.rbd_bindings.getBoolExprLen(mincutsets, src, dst)
+            num_bool_expr = build.rbd_bindings.boolExprCount(mincutsets, src, dst)
+            num_mincutsets = len(mincutsets)
             
+            # Save the results for each node pair
             result_data.append({
-                'source': src + 1,
-                'target': dst + 1,
+                'source': src,
+                'target': dst,
                 'CPP Time': time_cpp,
                 'Python Time': time_py,
-                'Number of Boolean Expressions': num_bool_expr
+                'Number of Boolean Expressions': num_bool_expr,
+                'Number of Mincutsets': num_mincutsets
             })
 
+            # Add the results to the total
             time_total_cpp += time_cpp
             time_total_py += time_py
             num_bool_expr_total += num_bool_expr
+            num_mincutsets_total += num_mincutsets
             
         # Round the total time taken
         time_total_cpp = round(time_total_cpp, precision)
         time_total_py = round(time_total_py, precision)
-    
+
+        # Save the results for the whole topology
         result_data.append({
             'source': 'All',
             'target': 'All',
             'CPP Time': time_total_cpp,
             'Python Time': time_total_py,
-            'Number of Boolean Expressions': num_bool_expr_total
+            'Number of Boolean Expressions': num_bool_expr_total,
+            'Number of Mincutsets': num_mincutsets_total
         })
 
         # Save the results to a CSV file for each topology
@@ -194,19 +203,20 @@ def run_benchmark():
         formatted_time_cpp = f"{time_total_cpp:.{precision}f}"[:10]
         formatted_time_py = f"{time_total_py:.{precision}f}"[:10]
 
-        # Save the simulation times for a overall comparison
-        simulation_times_per_topology[topology] = (formatted_time_cpp, formatted_time_py, num_bool_expr_total)
+        # Save the results of each topology
+        results_per_topology[topology] = (formatted_time_cpp, formatted_time_py, num_bool_expr_total, num_mincutsets_total)
 
         print(f"{topology} benchmark completed:")    
         print(f"Total time taken for CPP: {time_total_cpp} seconds")
         print(f"Total time taken for Python: {time_total_py} seconds")
         print(f"Total time saved by CPP: {round(time_total_py - time_total_cpp, precision)} seconds")
+        print(f"Total number of boolean expressions: {num_bool_expr_total}")
+        print(f"Total number of mincutsets: {num_mincutsets_total}")
     
-    # Save the simulation times for each topology to a CSV file
-    simulation_times_df = pd.DataFrame.from_dict(simulation_times_per_topology, orient='index', columns=['Simulation Time CPP (Second)', 'Simulation Time Python (Second)', 'Number of Boolean Expressions'])
+    # Save the simulation times for each topology in a summary CSV file
+    columns = ['Simulation Time CPP (Second)', 'Simulation Time Python (Second)', 'Number of Boolean Expressions', 'Number of Mincutsets']
+    simulation_times_df = pd.DataFrame.from_dict(results_per_topology, orient='index', columns=columns)
     simulation_times_df.index.name = 'Topology'
-
-    # Save the DataFrame to a CSV file
     simulation_times_df.to_csv("results/summary.csv", index=True)
 
 
@@ -326,7 +336,7 @@ def run_benchmark_multithreading():
 
 def run_benmark_with_mincutset():
     # read the mincutset from the file
-    topologies = ["Germany_50", "Nobel_EU"]
+    topologies = ["Nobel_EU50", "Germany_50"]
     
     for topology in topologies:
         print("===============Running benchmark for " + topology + "===============")

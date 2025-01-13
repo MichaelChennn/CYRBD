@@ -134,6 +134,6 @@ namespace rbd
      * @param dst 
      * @return the length of the probability set plus 2 for the src and dst
      */
-    int getBoolExprLen(const std::vector<std::vector<int>>& min_cutsets, const int &src, const int &dst);
+    int boolExprCount(const std::vector<std::vector<int>>& min_cutsets, const int &src, const int &dst);
 
 }

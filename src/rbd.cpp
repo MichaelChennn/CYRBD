@@ -154,7 +154,7 @@ namespace rbd
         return 0.0;
     }
 
-    int getBoolExprLen(const std::vector<std::vector<int>>& min_cutsets, const int &src, const int &dst) {
+    int boolExprCount(const std::vector<std::vector<int>>& min_cutsets, const int &src, const int &dst) {
         std::vector<std::vector<int>> prob_sets = minCutSetToProbaset(src, dst, min_cutsets);
         // return the length of the probability set plus 2 for the src and dst
         return prob_sets.size() + 2;

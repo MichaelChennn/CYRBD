@@ -20,7 +20,7 @@ PYBIND11_MODULE(rbd_bindings, m) {
           "Directly evaluate availability using minimal cutsets and probabilities",
           py::arg("min_cutsets"), py::arg("probabilities"), py::arg("src"), py::arg("dst"));
 
-    m.def("lengthOfProbaset", &rbd::getBoolExprLen,
+    m.def("lengthOfProbaset", &rbd::boolExprCount,
             "Compute the length of the probability set",
             py::arg("min_cutsets"), py::arg("src"), py::arg("dst"));
 }
