@@ -32,14 +32,12 @@ cd ..
 ```
 pip install -r requirements.txt
 ```
-
-- change the CmakeLists.txt:
+<!-- - change the CmakeLists.txt:
 ```
 set(pybind11_DIR "/home/{your_username}/.local/lib/{your_python_version}/site-packages/pybind11/share/cmake/pybind11")
 # this path can be seen with command:
 pip show pybind11
-```
-
+``` -->
 - Build the programm
 
 ```bash

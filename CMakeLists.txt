@@ -5,8 +5,31 @@ project(RBD)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+# execute pip show pybind11 to find the path of pybind11
+execute_process(
+    COMMAND pip show pybind11
+    OUTPUT_VARIABLE PIP_SHOW_OUTPUT
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+string(REGEX MATCH "Location: ([^\n]+)" MATCHED_LOCATION "${PIP_SHOW_OUTPUT}")
+string(REGEX REPLACE "Location: " "" PYBIND11_LOCATION "${MATCHED_LOCATION}")
+
+# set the path of pybind11
+if (PYBIND11_LOCATION)
+    set(pybind11_DIR "${PYBIND11_LOCATION}/pybind11/share/cmake/pybind11")
+    message(STATUS "pybind11 found at: ${pybind11_DIR}")
+else()
+    message(FATAL_ERROR "pybind11 location not found. Ensure pybind11 is installed.")
+endif()
+
+# check if the pybind11 directory exists
+if (EXISTS ${pybind11_DIR})
+    message(STATUS "pybind11 directory exists: ${pybind11_DIR}")
+else()
+    message(FATAL_ERROR "pybind11 directory does not exist: ${pybind11_DIR}")
+endif()
+
 # find and include pybind11
-set(pybind11_DIR "/home/chenyaxuan123/.local/lib/python3.8/site-packages/pybind11/share/cmake/pybind11")
 find_package(pybind11 REQUIRED)
 
 # find nlohmann_json library
