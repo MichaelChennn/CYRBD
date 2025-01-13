@@ -9,6 +9,7 @@ import csv
 
 
 
+
 def binding_cpp_files():
     print("Binding the CPP files")
     if not os.path.exists("./build"):
@@ -159,7 +160,7 @@ def run_benchmark():
             time_py = round(time_end_py - time_start_py, precision)
 
             # Get the number of boolean expressions
-            num_bool_expr = build.rbd_bindings.lengthOfProbaset(mincutsets, src, dst)
+            num_bool_expr = build.rbd_bindings.getBoolExprLen(mincutsets, src, dst)
             
             result_data.append({
                 'source': src + 1,
@@ -372,7 +373,7 @@ def run_benmark_with_mincutset():
             
             time_cpp = round(time_end_cpp - time_start_cpp, precision)
 
-            num_bool_expr = build.rbd_bindings.lengthOfProbaset(mincutsets_relabeled[i], node_pairs[i][0], node_pairs[i][1])
+            num_bool_expr = build.rbd_bindings.getBoolExprLen(mincutsets_relabeled[i], node_pairs[i][0], node_pairs[i][1])
             num_bool_expr_total += num_bool_expr
 
             result_data.append({
@@ -410,13 +411,29 @@ def run_benmark_with_mincutset():
         
 
 if __name__ == "__main__":
-    binding_cpp_files()
-    run_test()
-    run_benchmark()
-    run_benmark_with_mincutset()
-    run_benchmark_multiprocessing()
-    run_benchmark_multithreading()
-    run_benmark_with_mincutset()
-    print("All tests and benchmarks completed")
+    # binding_cpp_files()
+    # run_test()
+    # run_benchmark()
+    # run_benmark_with_mincutset()
+    # run_benchmark_multiprocessing()
+    # run_benchmark_multithreading()
+    # run_benmark_with_mincutset()
+    # print("All tests and benchmarks completed")
+    # Load the two uploaded CSV files
+    # file1_path = 'topologies/Nobel_EU/mincutsets_Nobel_EU.csv'
+    # file2_path = 'topologies/Nobel_EU/mincutsets_Nobel_EU50.csv'
+
+    # df1 = pd.read_csv(file1_path)
+    # df2 = pd.read_csv(file2_path)
+
+    # # Compare the two DataFrames
+    # comparison_result = pd.concat([df1, df2], axis=1, keys=['File1', 'File2'])
+    # comparison_result_diff = df1.compare(df2, align_axis=0)
+    
+    # print(comparison_result_diff.head(10))
+    G, _ , _ = read_graph('topologies/Nobel_EU', 'Nobel_EU')
+    mincutset = minimalcuts(G, 0, 8)
+    print(mincutset)
+    
     
         

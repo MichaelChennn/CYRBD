@@ -574,13 +574,18 @@ def calculate_availability_multithreading_cpp(G, A_dic):
     
 if __name__ == '__main__':
     # Load the graph
-    G, _, _ = read_graph('topologies/Germany_17', 'Germany_17')
+    G, _, _ = read_graph('topologies/Nobel_EU', 'Nobel_EU')
     # Load the A_dic
     A_dic = {i: 0.99 for i in G.nodes()}
     # Calculate the availability
-    time_start = time.time()
-    result = calculate_availability_multiprocessing_cpp(G, A_dic)
-    time_end = time.time()
-    print("Time taken:", time_end - time_start)
-    print(result)
+    start = time.time()
+    result_py = calculate_availability(G, 0, 1, A_dic)
+    end = time.time()
+    print(f"python result: {result_py}")
+    print(f"python time: {end - start}")
+    start = time.time()
+    result_cpp = calculate_availability_cpp(G, 0, 1, A_dic)
+    end = time.time()
+    print(f"cpp result: {result_cpp}")
+    print(f"cpp time: {end - start}")
     

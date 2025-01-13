@@ -72,31 +72,6 @@ namespace rbd
     };
     
     /**
-     * @brief Read the minimal cut set from the json file
-     * 
-     * @param file_path 
-     * @return std::vector<MinCutset> sorted minimal cut sets
-     */
-    std::map<std::pair<int,int>, std::vector<std::vector<int>>> readMinCutSet(const std::string file_path);
-
-    /**
-     * @brief Read the probability array from the json file
-     * 
-     * @param file_path 
-     * @return ProbabilityArray 
-     */
-    ProbabilityArray readProbabilityArray(const std::string file_path);
-
-    /**
-     * @brief Write the result to the a csv file
-     * 
-     * @param file_name 
-     * @param result 
-     */
-    // void writeResultToFile(const std::string topology_name, const std::map<std::pair<int, int>, double> &result);
-
-
-    /**
      * @brief Create a couple of disjoint sets from set2
      * Algorithm:
      * 1. Find the set: set1 \ set2, e.g. set1 = {1, 2, 3, 4, 5}, set2 = {2, 4}, then RC = set1 \ set2 = {1, 3, 5}
@@ -111,26 +86,6 @@ namespace rbd
      * 
      */
     std::vector<std::vector<int>> makeDisjointSet(std::vector<int> set1, std::vector<int> set2);
-
-    /**
-     * @brief Convert the path-sets to the probability sets
-     * Algorithm:
-     * For each min-cutset, create a couple of disjoint sets from the other min-cutset
-     * 1. initialize the probability sets as the min-cutsets
-     * 2. select the left most set as the selected_set and the remaining min-cutsets as the right remaining sets e.g min-cutsets = {set1, set2, set3}
-     * then selected_set = set1, remaining sets = {set2, set3}
-     * 3. create the disjoint sets from the set1 and each set in the remaining sets e.g. makeDisjointSet(set1, set2), makeDisjointSet(set1, set3)
-     * 4. the new disjoint set should follow the rules:
-     * Absorption: x + xy = x
-     * Reduction: x + x'y = x + y
-     *            xy + xy = xy
-     *            xy + xy' = x
-     * 5. add the new disjoint sets to the probability sets
-     * 6. repeat the steps 2-5 for the second left most set and the remaining sets are the right remaining sets e.g. selected_set = set2, remaining sets = {set3}
-     * @param path_sets
-     * @return std::vector<std::vector<int>> probability sets
-     */
-    // std::vector<std::vector<int>> convert_pathset_to_probaset (std::vector<std::vector<int>>& path_sets);
 
     /**
      * @brief Convert the minimal cut sets to the probability sets
@@ -163,24 +118,6 @@ namespace rbd
 
     /**
      * @brief Evaluate the availability for a specific src-dst pair and topology file
-     * 
-     * @param file_name 
-     * @param src 
-     * @param dst 
-     * @return the availability in double
-     */
-    // double evaluateAvailability_old(const std::string file_name, const int &src, const int &dst);
-
-    /**
-     * @brief Evaluate the availability for all src-dst pairs in the topology file
-     * 
-     * @param file_name 
-     * @return a map of src-dst pair and the availability 
-     */
-    // std::map<std::pair<int, int>, double> evaluateAvailabilityTopology_old(const std::string file_name);
-
-    /**
-     * @brief Evaluate the availability for a specific src-dst pair and topology file
      * Better version of evaluateAvailability with direct min_cutsets and prob_array as input from python
      * @param min_cutsets 
      * @param prob_array 
@@ -190,6 +127,13 @@ namespace rbd
      */
     double evaluateAvailability(const std::vector<std::vector<int>>& min_cutsets, const ProbabilityArray& prob_array, const int &src, const int &dst);
 
-    int lengthOfProbaset(const std::vector<std::vector<int>>& min_cutsets, const int &src, const int &dst);
+    /**
+     * @brief Compute the length of the probability set
+     * @param min_cutsets 
+     * @param src 
+     * @param dst 
+     * @return the length of the probability set plus 2 for the src and dst
+     */
+    int getBoolExprLen(const std::vector<std::vector<int>>& min_cutsets, const int &src, const int &dst);
 
 }
