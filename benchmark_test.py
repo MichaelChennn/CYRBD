@@ -349,7 +349,7 @@ def run_benmark_with_mincutset():
         A_dic = {i:0.9 for i in range(G.number_of_nodes())}
         
         # Relabel the nodes of G and A_dic
-        G, A_dic, relabel_mapping = relabel_graph_A_dict(G, A_dic)
+        G, A_dic, _ = relabel_graph_A_dict(G, A_dic)
         
         # Load the mincutsets
         print("Loading mincutsets: " + topology)
