@@ -219,6 +219,101 @@ def run_benchmark():
     simulation_times_df.index.name = 'Topology'
     simulation_times_df.to_csv("results/summary.csv", index=True)
 
+def run_benmark_with_mincutset():
+    # read the mincutset from the file
+    topologies = ["Nobel_EU50", "Nobel_EU", "Germany_50"]
+    
+    for topology in topologies:
+        print("===============Running benchmark for " + topology + "===============")
+        
+        # Load the topology
+        print("Loading topology: " + topology)
+        G, _, _ = read_graph('topologies/' + topology, topology)
+        
+        # Create the availability dictionaries
+        A_dic = {i:0.9 for i in range(G.number_of_nodes())}
+        
+        # Relabel the nodes of G and A_dic
+        G, A_dic, _ = relabel_graph_A_dict(G, A_dic)
+        
+        # Load the mincutsets
+        print("Loading mincutsets: " + topology)
+        df = pd.read_csv(f"topologies/{topology}/mincutsets_{topology}.csv")
+        df['min-cutsets'] = df['min-cutsets'].apply(ast.literal_eval)
+        mincutsets = df['min-cutsets'].values.tolist()
+        
+        # Relabel the mincutsets
+        mincutsets_relabeled = [[[i + 1 for i in num] for num in sublist] for sublist in mincutsets]
+        
+        # Set the precision
+        precision = 9
+        print(f"Setting the comparsion precision to {precision}")
+        
+        # Get all the node pairs
+        node_pairs = list(combinations(list(G.nodes), 2))
+        
+        # Save the results each node pair
+        result_data = []
+        time_total_cpp = 0
+        num_bool_expr_total = 0
+        num_mincutsets_total = 0
+        
+        # Evaluate the availability with CPP
+        for i in range(len(mincutsets_relabeled)):
+            # Measure the CPP time taken
+            time_start_cpp = time.time()
+            try:
+                build.rbd_bindings.evaluateAvailability(mincutsets_relabeled[i], A_dic, node_pairs[i][0], node_pairs[i][1])
+            except Exception as e:
+                print(e)
+            time_end_cpp = time.time()
+            
+            time_cpp = round(time_end_cpp - time_start_cpp, precision)
+
+            num_bool_expr = build.rbd_bindings.boolExprCount(mincutsets_relabeled[i], node_pairs[i][0], node_pairs[i][1])
+            num_mincutsets = len(mincutsets_relabeled[i])
+
+            result_data.append({
+                'source': node_pairs[i][0],
+                'target': node_pairs[i][1],
+                'CPP Time': time_cpp,
+                'Number of Boolean Expressions': num_bool_expr,
+                'Number of Mincutsets': num_mincutsets
+            })
+            
+            # Add the results to the total
+            time_total_cpp += time_cpp
+            num_bool_expr_total += num_bool_expr
+            num_mincutsets_total += num_mincutsets
+
+        # Round the total time taken
+        time_total_cpp = round(time_total_cpp, precision)
+        
+        # Save the results for the whole topology
+        result_data.append({
+            'source': 'All',
+            'target': 'All',
+            'CPP Time': time_total_cpp,
+            'Number of Boolean Expressions': num_bool_expr_total,
+            'Number of Mincutsets': num_mincutsets_total
+        })
+        
+        # Save the results to a CSV file for each topology
+        result_df = pd.DataFrame(result_data)
+        result_df.to_csv(f"results/{topology}_benchmark_with_mincutset.csv", float_format='%.9f', index=False)
+        
+        # Format the time taken
+        formatted_time_cpp = f"{time_total_cpp:.{precision}f}"[:10]
+        
+        # Save the simulation times in the summary 
+        with open("results/summary.csv", "a") as f:
+            writer = csv.writer(f)
+            writer.writerow([topology, formatted_time_cpp, "NA", num_bool_expr_total, num_mincutsets_total])
+        
+        print(f"{topology} benchmark completed:")
+        print(f"Total time taken for CPP: {time_total_cpp} seconds")
+        print(f"Total number of boolean expressions: {num_bool_expr_total}")
+        print(f"Total number of mincutsets: {num_mincutsets_total}")
 
 def run_benchmark_multiprocessing():
     # save the simulation times for each topology
@@ -278,7 +373,6 @@ def run_benchmark_multiprocessing():
     # Save the DataFrame to a CSV file
     simulation_times_df.to_csv("results/summary_multiprocessing_cpp.csv", index=True)
 
-
 def run_benchmark_multithreading():
     # save the simulation times for each topology
     simulation_times_per_topology = {}
@@ -333,117 +427,22 @@ def run_benchmark_multithreading():
     # Save the DataFrame to a CSV file
     simulation_times_df.to_csv("results/summary_multithreading_cpp.csv", index=True)
 
-
-def run_benmark_with_mincutset():
-    # read the mincutset from the file
-    topologies = ["Nobel_EU50", "Germany_50"]
-    
-    for topology in topologies:
-        print("===============Running benchmark for " + topology + "===============")
-        
-        # Load the topology
-        print("Loading topology: " + topology)
-        G, _, _ = read_graph('topologies/' + topology, topology)
-        
-        # Create the availability dictionaries
-        A_dic = {i:0.9 for i in range(G.number_of_nodes())}
-        
-        # Relabel the nodes of G and A_dic
-        G, A_dic, _ = relabel_graph_A_dict(G, A_dic)
-        
-        # Load the mincutsets
-        print("Loading mincutsets: " + topology)
-        df = pd.read_csv(f"topologies/{topology}/mincutsets_{topology}.csv")
-        df['min-cutsets'] = df['min-cutsets'].apply(ast.literal_eval)
-        mincutsets = df['min-cutsets'].values.tolist()
-        
-        # Relabel the mincutsets
-        mincutsets_relabeled = [[[i + 1 for i in num] for num in sublist] for sublist in mincutsets]
-        
-        # Set the precision
-        precision = 9
-        print(f"Setting the comparsion precision to {precision}")
-        
-        # Get all the node pairs
-        node_pairs = list(combinations(list(G.nodes), 2))
-        
-        result_data = []
-        time_total_cpp = 0
-        num_bool_expr_total = 0
-        
-        # Evaluate the availability with CPP
-        for i in range(len(mincutsets_relabeled)):
-            # Measure the CPP time taken
-            time_start_cpp = time.time()
-            try:
-                build.rbd_bindings.evaluateAvailability(mincutsets_relabeled[i], A_dic, node_pairs[i][0], node_pairs[i][1])
-            except Exception as e:
-                print(e)
-            time_end_cpp = time.time()
-            
-            time_cpp = round(time_end_cpp - time_start_cpp, precision)
-
-            num_bool_expr = build.rbd_bindings.getBoolExprLen(mincutsets_relabeled[i], node_pairs[i][0], node_pairs[i][1])
-            num_bool_expr_total += num_bool_expr
-
-            result_data.append({
-                'source': node_pairs[i][0],
-                'target': node_pairs[i][1],
-                'CPP Time': time_cpp,
-                'Number of Boolean Expressions': num_bool_expr
-            })
-            
-            time_total_cpp += time_cpp
-            
-        time_total_cpp = round(time_total_cpp, precision)
-        
-        result_data.append({
-            'source': 'All',
-            'target': 'All',
-            'CPP Time': time_total_cpp,
-            'Number of Boolean Expressions': num_bool_expr_total
-        })
-        
-        # Save the results to a CSV file for each topology
-        result_df = pd.DataFrame(result_data)
-        result_df.to_csv(f"results/{topology}_benchmark_with_mincutset.csv", float_format='%.9f', index=False)
-        
-        # Format the time taken
-        formatted_time_cpp = f"{time_total_cpp:.{precision}f}"[:10]
-        
-        # Save the simulation times in the summary 
-        with open("results/summary.csv", "a") as f:
-            writer = csv.writer(f)
-            writer.writerow([topology, formatted_time_cpp, "NA", num_bool_expr_total])
-        
-        print(f"{topology} benchmark completed:")
-        print(f"Total time taken for CPP: {time_total_cpp} seconds")
-        
-
 if __name__ == "__main__":
+    # clean the results directory
+    if not os.path.exists("results"):
+        os.makedirs("results")
+    else:
+        files = os.listdir("results")
+        for file in files:
+            os.remove(os.path.join("results", file))
+    
     # binding_cpp_files()
     # run_test()
-    # run_benchmark()
-    # run_benmark_with_mincutset()
-    # run_benchmark_multiprocessing()
-    # run_benchmark_multithreading()
-    # run_benmark_with_mincutset()
-    # print("All tests and benchmarks completed")
-    # Load the two uploaded CSV files
-    # file1_path = 'topologies/Nobel_EU/mincutsets_Nobel_EU.csv'
-    # file2_path = 'topologies/Nobel_EU/mincutsets_Nobel_EU50.csv'
-
-    # df1 = pd.read_csv(file1_path)
-    # df2 = pd.read_csv(file2_path)
-
-    # # Compare the two DataFrames
-    # comparison_result = pd.concat([df1, df2], axis=1, keys=['File1', 'File2'])
-    # comparison_result_diff = df1.compare(df2, align_axis=0)
-    
-    # print(comparison_result_diff.head(10))
-    G, _ , _ = read_graph('topologies/Nobel_EU', 'Nobel_EU')
-    mincutset = minimalcuts(G, 0, 8)
-    print(mincutset)
+    run_benchmark()
+    run_benmark_with_mincutset()
+    run_benchmark_multiprocessing()
+    run_benchmark_multithreading()
+    print("All tests and benchmarks completed")
     
     
         
