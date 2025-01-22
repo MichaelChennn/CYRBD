@@ -11,16 +11,26 @@ PYBIND11_MODULE(rbd_bindings, m) {
 //           py::arg("file_name"), py::arg("src"), py::arg("dst"));
           
     m.def("evaluateAvailability", 
-          [](const std::vector<std::vector<int>>& min_cutsets, 
+          [](std::vector<std::vector<int>>& mincutset, 
              const std::map<int,double>& probabilities, 
              int src, int dst) {
-              ProbabilityArray prob_array(probabilities);
-              return rbd::evaluateAvailability(min_cutsets, prob_array, src, dst);
+              ProbabilityArray probArr(probabilities);
+              return rbd::evaluateAvailability(src, dst, probArr, mincutset);
           },
           "Directly evaluate availability using minimal cutsets and probabilities",
-          py::arg("min_cutsets"), py::arg("probabilities"), py::arg("src"), py::arg("dst"));
+          py::arg("mincutset"), py::arg("probabilities"), py::arg("src"), py::arg("dst"), py::call_guard<py::gil_scoped_release>());
+
+    m.def("evaluateAvailabilityTopology", 
+          [](std::vector<std::vector<std::vector<int>>>& mincutsets, 
+             const std::map<int,double>& probabilities, 
+             const std::vector<std::pair<int,int>>& nodePairs) {
+              ProbabilityArray prob_array(probabilities);
+              return rbd::evaluateAvailabilityTopology(nodePairs, prob_array, mincutsets);
+          },
+          "Directly evaluate availability using minimal cutsets and probabilities",
+          py::arg("mincutset"), py::arg("probabilities"), py::arg("nodePairs"), py::call_guard<py::gil_scoped_release>());
 
     m.def("boolExprCount", &rbd::boolExprCount,
             "Compute the length of the probability set",
-            py::arg("min_cutsets"), py::arg("src"), py::arg("dst"));
+            py::arg("mincutset"), py::arg("src"), py::arg("dst"));
 }

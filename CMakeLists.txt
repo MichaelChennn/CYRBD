@@ -60,6 +60,10 @@ target_link_libraries(rbd_library nlohmann_json::nlohmann_json)
 # add_executable(benchmark src/benchmark.cpp)
 # target_link_libraries(benchmark rbd_library)
 
+# set up rbd executable
+add_executable(rbd src/rbd.cpp)
+target_link_libraries(rbd rbd_library)
+
 # set up python module
 pybind11_add_module(rbd_bindings src/python_bindings.cpp)
 target_link_libraries(rbd_bindings PRIVATE rbd_library)

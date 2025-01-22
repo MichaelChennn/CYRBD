@@ -5,6 +5,9 @@
 #include <string>
 #include <set>
 #include <utility>
+#include <unordered_set>
+#include <regex>
+
 
 
 namespace rbd
@@ -76,13 +79,13 @@ namespace rbd
      * Algorithm:
      * 1. Find the set: set1 \ set2, e.g. set1 = {1, 2, 3, 4, 5}, set2 = {2, 4}, then RC = set1 \ set2 = {1, 3, 5}
      * 2. add the elements in RC to set2 to create several new sets. The rule is every time add one more element from RC to set2 and the last element to add is negative.
-     *      1) first step: {2, 4} -> {2, 4, 1}
+     *      1) first step: {2, 4} -> {2, 4, -1}
      *      2) second step: {2, 4, 1} -> {2, 4, 1, -3}
      *      3) third step: {2, 4, 1, -3} -> {2, 4, 1, -3, -5}
      * 3. return the new disjoint sets {{2, 4, 1}, {2, 4, 1, -3}, {2, 4, 1, 3, -5}}
      * @param set1 
      * @param set2 
-     * @return std::vector<std::vector<int>> sorted disjointed sets
+     * @return disjointed sets
      * 
      */
     std::vector<std::vector<int>> makeDisjointSet(std::vector<int> set1, std::vector<int> set2);
@@ -103,7 +106,7 @@ namespace rbd
      * @param min_cutsets 
      * @return std::vector<std::vector<int>> 
      */
-    std::vector<std::vector<int>> minCutSetToProbaset (const int &src, const int &dst, const std::vector<std::vector<int>>& min_cutsets);
+    std::vector<std::vector<int>> minCutSetToProbaset (const int &src, const int &dst, std::vector<std::vector<int>>& mincutset);
 
     /**
      * @brief Compute the probability of the given probability set and the probability array
@@ -114,7 +117,7 @@ namespace rbd
      * @param prob_array 
      * @return the probability in double
      */
-    double probasetToAvailability(const int &src, const int &dst, const ProbabilityArray &prob_array, std::vector<std::vector<int>> &prob_set);
+    double probasetToAvailability(const int &src, const int &dst, const ProbabilityArray &probArr, std::vector<std::vector<int>> &prob_set);
 
     /**
      * @brief Evaluate the availability for a specific src-dst pair and topology file
@@ -125,7 +128,17 @@ namespace rbd
      * @param dst 
      * @return the availability in double
      */
-    double evaluateAvailability(const std::vector<std::vector<int>>& min_cutsets, const ProbabilityArray& prob_array, const int &src, const int &dst);
+    double evaluateAvailability(const int &src, const int &dst, const ProbabilityArray& probArr, std::vector<std::vector<int>>& mincutset);
+
+    /**
+     * @brief Evaluate the availability for a specific src-dst pair and topology file
+     * @param a list of mincutsets
+     * @param src
+     * @param dst
+     * @return the list of (src, dst, availability) tuples
+     */
+
+    std::vector<std::tuple<int, int, double>> evaluateAvailabilityTopology(const std::vector<std::pair<int, int>>& nodePairs, const ProbabilityArray& probArr, std::vector<std::vector<std::vector<int>>>& mincutsets);
 
     /**
      * @brief Compute the length of the probability set
@@ -134,6 +147,6 @@ namespace rbd
      * @param dst 
      * @return the length of the probability set plus 2 for the src and dst
      */
-    int boolExprCount(const std::vector<std::vector<int>>& min_cutsets, const int &src, const int &dst);
+    int boolExprCount(std::vector<std::vector<int>>& mincutsets, const int &src, const int &dst);
 
 }

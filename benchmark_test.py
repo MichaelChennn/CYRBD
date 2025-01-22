@@ -429,20 +429,58 @@ def run_benchmark_multithreading():
 
 if __name__ == "__main__":
     # clean the results directory
-    if not os.path.exists("results"):
-        os.makedirs("results")
-    else:
-        files = os.listdir("results")
-        for file in files:
-            os.remove(os.path.join("results", file))
+    # if not os.path.exists("results"):
+    #     os.makedirs("results")
+    # else:
+    #     files = os.listdir("results")
+    #     for file in files:
+    #         os.remove(os.path.join("results", file))
     
     # binding_cpp_files()
-    # run_test()
+    run_test()
     run_benchmark()
     run_benmark_with_mincutset()
     run_benchmark_multiprocessing()
     run_benchmark_multithreading()
     print("All tests and benchmarks completed")
+
+    # test = True
+            
+    # if test:
+    #     run_test()
+    # else:
+    #     topology = "Nobel_EU50"
+    #     # Load the topology
+    #     print("Loading topology: " + topology)
+    #     G, _, _ = read_graph('topologies/' + topology, topology)
+
+    #     # Create the availability dictionaries
+    #     A_dic = {i:0.9 for i in range(G.number_of_nodes())}
+
+    #     # Relabel the nodes of G and A_dic
+    #     G, A_dic, _ = relabel_graph_A_dict(G, A_dic)
+
+    #     # Load the mincutsets
+    #     print("Loading mincutsets: " + topology)
+    #     df = pd.read_csv(f"topologies/{topology}/mincutsets_{topology}.csv")
+    #     df['min-cutsets'] = df['min-cutsets'].apply(ast.literal_eval)
+    #     mincutsets = df['min-cutsets'].values.tolist()
+
+    #     # Relabel the mincutsets
+    #     mincutsets_relabeled = [[[i + 1 for i in num] for num in sublist] for sublist in mincutsets]
+        
+    #     node_pairs = list(combinations(list(G.nodes), 2))
+    #     print(f"{len(node_pairs)} node pairs")
+        
+    #     time_start_cpp = time.time()
+    #     results = build.rbd_bindings.evaluateAvailabilityTopology(mincutsets_relabeled, A_dic, node_pairs)
+    #     time_end_cpp = time.time()
+            
+    #     time_cpp = round(time_end_cpp - time_start_cpp, 9)
+        
+    #     print(f"Total time taken for CPP: {time_cpp} seconds")
+    
+    
     
     
         
