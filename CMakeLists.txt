@@ -5,6 +5,13 @@ project(RBD)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+# set gprof flags
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -pg -O3")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pg")
+
+# set O3 optimization
+# set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
+
 # execute pip show pybind11 to find the path of pybind11
 execute_process(
     COMMAND pip show pybind11
@@ -47,6 +54,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 # create a static library
 add_library(rbd_library STATIC ${SRC_FILES})
+
 # set the -fPIC flag on
 set_target_properties(rbd_library PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_include_directories(rbd_library PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
